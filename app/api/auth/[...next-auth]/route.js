@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
 
 const authOptions = {
@@ -22,7 +22,7 @@ const authOptions = {
     ]
 }
 
-export const handlers = NextAuth(authOptions)
-const GET = NextAuth()
-const POST = NextAuth()
+export const handler = NextAuth(authOptions)
+const GET = handler
+const POST = handler
 export { GET, POST }
