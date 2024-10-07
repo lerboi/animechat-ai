@@ -1,27 +1,57 @@
 "use client"
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { RiLoginBoxLine } from "react-icons/ri"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { signIn } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
+import { FaSignInAlt } from "react-icons/fa";
 
 export default function LoginPopup({isOpen}) {
+  const {data: session, status} = useSession()
   const [isOpenPopup, setIsOpenPopup] = useState(false)
   const [showEmailLogin, setShowEmailLogin] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState(null)
 
-  const handleEmailLogin = (e) => {
+  useEffect(() => {
+    setError(null)
+  }, [email, password])
+
+  async function handleEmailLogin(e) {
     e.preventDefault()
     // Handle email login logic here
-    console.log('Email login submitted')
+    const response = await signIn("credentials", {
+      redirect: false,
+      email: email,
+      password: password
+    })
+    if (response.ok){
+      window.location.href = "/"
+    }
+    else {
+      setError("Something went wrong")
+    }
   }
 
   return (
     <div>
+      {/* Login Popup Icon at Navbar */}
       {isOpen ? (
-        <Button variant="outline" className="w-full" onClick={() => setIsOpenPopup(true)}>Open Login</Button>
+        session? 
+          <Button variant="outline" className="w-full" onClick={() => signOut()}>Sign Out</Button>
+          :
+          <Button variant="outline" className="w-full" onClick={() => setIsOpenPopup(true)}>Sign In</Button>
+
       ) : (
+        session?
+        <div className="rounded-xl hover:bg-slate-400 flex justify-center hover:bg-opacity-30 hover:text-white p-4 m-1">
+          <FaSignInAlt className="text-white" size={28} onClick={() => setIsOpenPopup(true)}/>
+        </div>
+        :
         <div className="rounded-xl hover:bg-slate-400 flex justify-center hover:bg-opacity-30 hover:text-white p-4 m-1">
           <RiLoginBoxLine className="text-white" size={28} onClick={() => setIsOpenPopup(true)}/>
         </div>
@@ -30,18 +60,15 @@ export default function LoginPopup({isOpen}) {
       {isOpenPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full relative overflow-hidden">
-            <button
-              onClick={() => {
+            <button onClick={() => {
                 setIsOpenPopup(false)
                 setShowEmailLogin(false)
               }}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10"
-            >
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10">
               <X className="h-6 w-6" />
             </button>
 
             <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: showEmailLogin ? 'translateX(-100%)' : 'translateX(0)' }}>
-
               {/* Main Popup Page */}
               <div className="w-full flex-shrink-0">
                 <div className="p-6">
@@ -100,22 +127,28 @@ export default function LoginPopup({isOpen}) {
               <div className="w-full flex-shrink-0">
                 <div className="p-6">
                   <h2 className="text-2xl font-bold mb-6 text-center">Login with Email</h2>
+
+                  {/* Form Section */}
                   <form onSubmit={handleEmailLogin} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="Enter your email" required />
+                      <Label>Email</Label>
+                      <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter your email" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input id="password" type="password" placeholder="Enter your password" required />
+                      <Label>Password</Label>
+                      <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Enter your password" required />
                     </div>
+
+                    {/* Error section */}
+                      <div className="flex justify-center items-center">
+                        {error && (
+                          <p className="text-sm text-red-500">{error}</p>
+                        )}
+                      </div>
+
                     <Button type="submit" className="w-full">Login</Button>
                   </form>
-                  <Button 
-                    variant="link" 
-                    className="mt-4 w-full"
-                    onClick={() => setShowEmailLogin(false)}
-                  >
+                  <Button variant="link" className="mt-4 w-full" onClick={() => setShowEmailLogin(false)}>
                     Back
                   </Button>
                 </div>

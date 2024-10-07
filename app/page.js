@@ -4,11 +4,14 @@ import Navbar from "@/components/Navbar";
 import Card from "@/components/Card";
 import ChatList from "@/components/ChatList";
 import ChatWindow from "@/components/ChatWindow";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+  const { data: session, status } = useSession()
   const [selectedChat, setSelectedChat] = useState(null)
   const [navItem, setNavItem] = useState("Home")
   const [isOpen, setIsOpen] = useState(false);
+
   const navLinks = ["Home", "Chats"]
   const cards = [
     { title: 'Card 1', description: 'Description for card 1' },

@@ -26,8 +26,9 @@ export default function ChatWindow({ selectedChat }) {
 
   useEffect(scrollToBottom, [messages])
 
-  const handleSendMessage = (e) => {
+  async function handleSendMessage(e) {
     e.preventDefault()
+    //HANDLE USER MESSAGE
     if (newMessage.trim()) {
       const message = {
         id: messages.length + 1,
@@ -39,9 +40,32 @@ export default function ChatWindow({ selectedChat }) {
       setMessages([...messages, message])
       setNewMessage('')
     }
+    getAiResponse(messages)
   }
 
-  if (!selectedChat) return <p className="text-[#e7e7e7] p-4">Select a chat to start messaging</p>
+  //FUNCTION TO GET AI MESSAGE
+  async function getAiResponse(messages){
+    const response = await fetch("/api/getAiResponse", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messages: messages
+      })
+    })
+    if (response.ok){
+      console.log("Pending")
+    }
+    else{
+      console.log("Not pending")
+    }
+  }
+
+  if (!selectedChat) 
+    return (
+    <p className="text-[#e7e7e7] p-4">Select a chat to start messaging, or add more chats</p>
+  )
 
   return (
     <>
