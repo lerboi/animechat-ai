@@ -1,10 +1,13 @@
 "use client"
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Nav/Navbar";
 import Card from "@/components/Card";
-import ChatList from "@/components/ChatList";
-import ChatWindow from "@/components/ChatWindow";
+import ChatList from "@/components/Chats/ChatList";
+import ChatWindow from "@/components/Chats/ChatWindow";
+import PricingPage from "@/components/Pricing/PricingPage";
+import { PricingCard } from "@/components/Pricing/PricingCard";
 import { useSession } from "next-auth/react";
+import PersonalCharacters from "@/components/PersonalCharacters";
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -12,7 +15,7 @@ export default function Home() {
   const [navItem, setNavItem] = useState("Home")
   const [isOpen, setIsOpen] = useState(false);
 
-  const navLinks = ["Home", "Chats"]
+  const navLinks = ["Home", "Chats", "Pricing"]
   const cards = [
     { title: 'Card 1', description: 'Description for card 1' },
     { title: 'Card 2', description: 'Description for card 2' },
@@ -28,11 +31,7 @@ export default function Home() {
       <>
         <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
         <div className={`${contentClasses}`}>
-          <div className="">
-            {cards && cards.map(card => {
-              <Card card={card} />
-            })}
-          </div>
+          <PersonalCharacters />
         </div>
       </>
     )
@@ -49,7 +48,17 @@ export default function Home() {
           </div>
         </div>
       </>
+    );
+  }
 
+  if (navItem === "Pricing") {
+    return (
+      <>
+        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
+        <div className={`${contentClasses}`}>
+          <PricingPage />
+        </div>
+      </>
     );
   }
 }

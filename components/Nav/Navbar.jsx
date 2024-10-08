@@ -6,6 +6,8 @@ import { AiOutlineHome } from "react-icons/ai";
 import { AiFillHome } from "react-icons/ai";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 import { HiChatBubbleLeftRight } from "react-icons/hi2";
+import { HiOutlineCurrencyDollar } from "react-icons/hi2";
+import { HiMiniCurrencyDollar } from "react-icons/hi2";
 import Link from "next/link";
 import LoginPopup from "./LoginPopup";
 import { useState } from "react";
@@ -41,13 +43,16 @@ export default function Navbar({isOpen, setIsOpen, navItem, setNavItem, navLinks
                                     navItem === 'Home' ? <AiFillHome size={24} /> : <AiOutlineHome size={24} />
                                 : 
                                     <AiOutlineHome size={24} className={`transition-all duration-300 ${navItem === 'Home' ? 'text-white' : ''}`} />
-                                
-                                : link === 'Chats' ? (
+                            : link === 'Chats' ? (
                                 isOpen ? 
                                     navItem === 'Chats' ? <HiChatBubbleLeftRight size={24} /> : <HiOutlineChatBubbleLeftRight size={24} />
                                 : 
                                     <HiOutlineChatBubbleLeftRight size={24} className={`transition-all duration-300 ${navItem === 'Chats' ? 'text-white' : ''}`} />
-                                
+                            ) : link === 'Pricing' ? (
+                                isOpen ? 
+                                    navItem === 'Pricing' ? <HiMiniCurrencyDollar size={24} /> : <HiOutlineCurrencyDollar size={24} />
+                                : 
+                                    <HiOutlineCurrencyDollar size={24} className={`transition-all duration-300 ${navItem === 'Pricing' ? 'text-white' : ''}`} />
                             ) : null}
                             {isOpen && link}
                         </div>
@@ -59,5 +64,5 @@ export default function Navbar({isOpen, setIsOpen, navItem, setNavItem, navLinks
                 <LoginPopup isOpen={isOpen}/>
             </div>
         </nav>
-  )
+    )
 }
