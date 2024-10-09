@@ -1,13 +1,12 @@
 "use client"
 import { useState } from "react";
-import Navbar from "@/components/Nav/Navbar";
-import Card from "@/components/Card";
-import ChatList from "@/components/Chats/ChatList";
-import ChatWindow from "@/components/Chats/ChatWindow";
-import PricingPage from "@/components/Pricing/PricingPage";
-import { PricingCard } from "@/components/Pricing/PricingCard";
 import { useSession } from "next-auth/react";
-import PersonalCharacters from "@/components/PersonalCharacters";
+import Navbar from "@/components/Nav/Navbar";
+import ChatList from "@/components/Chats/ChatList";
+import ChatWindow from "@/components/ChatWindow";
+import PricingPage from "@/components/Pricing/PricingPage";
+import PersonalCharacters from "@/components/Home/PersonalCharacters";
+import Explore from "@/components/Home/Explore";
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -15,7 +14,7 @@ export default function Home() {
   const [navItem, setNavItem] = useState("Home")
   const [isOpen, setIsOpen] = useState(false);
 
-  const navLinks = ["Home", "Chats", "Pricing"]
+  const navLinks = ["Home", "Chats", "Pricing", "Help"]
   const cards = [
     { title: 'Card 1', description: 'Description for card 1' },
     { title: 'Card 2', description: 'Description for card 2' },
@@ -31,7 +30,12 @@ export default function Home() {
       <>
         <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
         <div className={`${contentClasses}`}>
-          <PersonalCharacters />
+          <div className="mb-10">
+            <PersonalCharacters />
+          </div>
+          <div>
+            <Explore />
+          </div>
         </div>
       </>
     )
@@ -57,6 +61,17 @@ export default function Home() {
         <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
         <div className={`${contentClasses}`}>
           <PricingPage />
+        </div>
+      </>
+    );
+  }
+
+  if (navItem === "Help") {
+    return (
+      <>
+        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
+        <div className={`${contentClasses}`}>
+          <h1>Help</h1>
         </div>
       </>
     );

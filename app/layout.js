@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import SessionWrapper from "@/components/SessionWrapper";
+import SessionWrapper from "@/lib/SessionWrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "Animechat.ai",
+  title: "anione.ai",
   description: "Talk to your favourite anime characters",
 };
 

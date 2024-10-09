@@ -1,6 +1,5 @@
 import React from 'react'
 import { PricingCard } from './PricingCard'
-
 const tiers = [
   {
     name: 'Free',
