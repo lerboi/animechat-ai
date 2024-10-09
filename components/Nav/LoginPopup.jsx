@@ -1,29 +1,47 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { RiLoginBoxLine } from "react-icons/ri"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signIn } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
 import { FaSignInAlt } from "react-icons/fa";
 
 export default function LoginPopup({isOpen}) {
   const {data: session, status} = useSession()
   const [isOpenPopup, setIsOpenPopup] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
   const [showEmailLogin, setShowEmailLogin] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
+  const [animationOrigin, setAnimationOrigin] = useState({ x: 0, y: 0 })
+  const popupRef = useRef(null)
 
   useEffect(() => {
     setError(null)
   }, [email, password])
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        closePopup()
+      }
+    }
+
+    if (isOpenPopup) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpenPopup])
+
   async function handleEmailLogin(e) {
     e.preventDefault()
-    // Handle email login logic here
     const response = await signIn("credentials", {
       redirect: false,
       email: email,
@@ -37,6 +55,22 @@ export default function LoginPopup({isOpen}) {
     }
   }
 
+  const openPopup = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    setAnimationOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+    setIsOpenPopup(true)
+    setIsClosing(false)
+  }
+
+  const closePopup = () => {
+    setIsClosing(true)
+    setTimeout(() => {
+      setIsOpenPopup(false)
+      setShowEmailLogin(false)
+      setIsClosing(false)
+    }, 300) // Match this with the animation duration
+  }
+
   return (
     <div>
       {/* Login Popup Icon at Navbar */}
@@ -44,26 +78,30 @@ export default function LoginPopup({isOpen}) {
         session? 
           <Button variant="outline" className="w-full" onClick={() => signOut()}>Sign Out</Button>
           :
-          <Button variant="outline" className="w-full" onClick={() => setIsOpenPopup(true)}>Sign In</Button>
+          <Button variant="outline" className="w-full" onClick={openPopup}>Sign In</Button>
 
       ) : (
         session?
         <div className="rounded-xl hover:bg-slate-400 flex justify-center hover:bg-opacity-30 hover:text-white p-4 m-1">
-          <FaSignInAlt className="text-white" size={28} onClick={() => setIsOpenPopup(true)}/>
+          <FaSignInAlt className="text-white" size={28} onClick={() => signOut()}/>
         </div>
         :
         <div className="rounded-xl hover:bg-slate-400 flex justify-center hover:bg-opacity-30 hover:text-white p-4 m-1">
-          <RiLoginBoxLine className="text-white" size={28} onClick={() => setIsOpenPopup(true)}/>
+          <RiLoginBoxLine className="text-white" size={28} onClick={openPopup}/>
         </div>
       )}
 
-      {isOpenPopup && (
+      {(isOpenPopup || isClosing) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full relative overflow-hidden">
-            <button onClick={() => {
-                setIsOpenPopup(false)
-                setShowEmailLogin(false)
-              }}
+          <div 
+            ref={popupRef}
+            className="bg-white rounded-lg shadow-xl max-w-md w-full relative overflow-hidden"
+            style={{
+              transformOrigin: `${animationOrigin.x}px ${animationOrigin.y}px`,
+              animation: `${isClosing ? 'closePopup' : 'openPopup'} 0.3s ease-out forwards`
+            }}
+          >
+            <button onClick={closePopup}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10">
               <X className="h-6 w-6" />
             </button>
@@ -158,6 +196,28 @@ export default function LoginPopup({isOpen}) {
           </div>
         </div>
       )}
+      <style jsx global>{`
+        @keyframes openPopup {
+          from {
+            transform: scale(0);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes closePopup {
+          from {
+            transform: scale(1);
+            opacity: 1;
+          }
+          to {
+            transform: scale(0);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   )
 }
