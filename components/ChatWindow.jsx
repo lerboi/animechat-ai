@@ -45,17 +45,16 @@ export default function ChatWindow({ selectedChat }) {
 
   //FUNCTION TO GET AI MESSAGE
   async function getAiResponse(messages){
-    const response = await fetch("/api/getAiResponse", {
+    const response = await fetch("/api/getAiResponseAPI", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        messages: messages
-      })
+      body: JSON.stringify(messages)
     })
     if (response.ok){
-      console.log("Pending")
+      const reply = await response.json()
+      console.log(reply)
     }
     else{
       console.log("Not pending")
