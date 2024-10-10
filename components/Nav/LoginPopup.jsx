@@ -14,6 +14,7 @@ export default function LoginPopup({isOpen}) {
   const [isOpenPopup, setIsOpenPopup] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
   const [showEmailLogin, setShowEmailLogin] = useState(false)
+  const [showRegistration, setShowRegistration] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
@@ -47,11 +48,31 @@ export default function LoginPopup({isOpen}) {
       email: email,
       password: password
     })
-    if (response.ok){
+    if (response.success){
       window.location.href = "/"
     }
     else {
-      setError("Something went wrong")
+      setError('Login failed. Please check your credentials.')
+    }
+  }
+
+  async function handleRegistration(e) {
+    e.preventDefault()
+    // Add your registration logic here
+    // For example:
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (response.ok) {
+      // Registration successful, you might want to sign in the user automatically
+      await signIn("credentials", { redirect: false, email, password })
+      window.location.href = "/"
+    } else {
+      const data = await response.json()
+      setError(data.message || 'Registration failed')
     }
   }
 
@@ -67,6 +88,7 @@ export default function LoginPopup({isOpen}) {
     setTimeout(() => {
       setIsOpenPopup(false)
       setShowEmailLogin(false)
+      setShowRegistration(false)
       setIsClosing(false)
     }, 300) // Match this with the animation duration
   }
@@ -106,16 +128,17 @@ export default function LoginPopup({isOpen}) {
               <X className="h-6 w-6" />
             </button>
 
-            <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: showEmailLogin ? 'translateX(-100%)' : 'translateX(0)' }}>
+            <div className="flex transition-transform duration-300 ease-in-out" 
+                 style={{ transform: showRegistration ? 'translateX(-200%)' : showEmailLogin ? 'translateX(-100%)' : 'translateX(0)' }}>
               {/* Main Popup Page */}
               <div className="w-full flex-shrink-0">
                 <div className="p-6">
-                  <div className="mb-6 flex space-x-2 overflow-hidden">
-                    <img src="/placeholder.svg?height=100&width=80" alt="Character 1" className="w-1/5 h-20 object-cover" />
-                    <img src="/placeholder.svg?height=100&width=80" alt="Character 2" className="w-1/5 h-20 object-cover" />
-                    <img src="/placeholder.svg?height=100&width=80" alt="Character 3" className="w-1/5 h-20 object-cover" />
-                    <img src="/placeholder.svg?height=100&width=80" alt="Character 4" className="w-1/5 h-20 object-cover" />
-                    <img src="/placeholder.svg?height=100&width=80" alt="Character 5" className="w-1/5 h-20 object-cover" />
+                  <div className="mb-6 flex overflow-hidden rounded">
+                    <img src="/mock1.jpg" alt="Character 1" className="w-1/5 h-20 object-cover" />
+                    <img src="/mock2.jpg" alt="Character 2" className="w-1/5 h-20 object-cover" />
+                    <img src="/mock3.webp" alt="Character 3" className="w-1/5 h-20 object-cover" />
+                    <img src="/mock4.jpg" alt="Character 4" className="w-1/5 h-20 object-cover" />
+                    <img src="/mock5.webp" alt="Character 5" className="w-1/5 h-20 object-cover" />
                   </div>
 
                   <h2 className="text-2xl font-bold mb-2 text-center">Create an account.</h2>
@@ -133,7 +156,7 @@ export default function LoginPopup({isOpen}) {
                       </svg>
                       <span>Continue with Email</span>
                     </Button>
-                    <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
+                    <Button variant="outline" className="w-full flex items-center justify-center space-x-2" onClick={() => signIn("google")}>
                       <svg className="w-5 h-5" viewBox="0 0 24 24">
                         <path
                           fill="currentColor"
@@ -178,20 +201,60 @@ export default function LoginPopup({isOpen}) {
                     </div>
 
                     {/* Error section */}
-                      <div className="flex justify-center items-center">
-                        {error && (
-                          <p className="text-sm text-red-500">{error}</p>
-                        )}
-                      </div>
+                    <div className="flex justify-center items-center">
+                      {error && (
+                        <p className="text-sm text-red-500">{error}</p>
+                      )}
+                    </div>
 
                     <Button type="submit" className="w-full">Login</Button>
                   </form>
+                  <div className="mt-4 text-center">
+                    <span 
+                      className="text-sm text-slate-600 hover:text-blue-400 cursor-pointer transition-all"
+                      onClick={() => (setShowRegistration(true), setError(""))}
+                    >
+                      Don't have an account?
+                    </span>
+                  </div>
                   <Button variant="link" className="mt-4 w-full" onClick={() => setShowEmailLogin(false)}>
                     Back
                   </Button>
                 </div>
               </div>
+              {/* Registration Page */}
+              <div className="w-full flex-shrink-0">
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold mb-6 text-center">Create an account</h2>
 
+                  {/* Registration Form */}
+                  <form onSubmit={handleRegistration} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter your email" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Password</Label>
+                      <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Enter your password" required />
+                    </div>
+
+                    {/* Error section */}
+                    <div className="flex justify-center items-center">
+                      {error && (
+                        <p className="text-sm text-red-500">{error}</p>
+                      )}
+                    </div>
+
+                    <Button type="submit" className="w-full">Register</Button>
+                  </form>
+                  <Button variant="link" className="mt-4 w-full" onClick={() => {
+                    setShowRegistration(false)
+                    setShowEmailLogin(true)
+                  }}>
+                    Back to Login
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

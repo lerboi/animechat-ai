@@ -1,23 +1,28 @@
 "use client"
-import { useSession } from "next-auth/react";
-import { MdKeyboardDoubleArrowRight } from "react-icons/md";
-import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
-import { AiOutlineHome } from "react-icons/ai";
-import { AiFillHome } from "react-icons/ai";
-import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
-import { HiChatBubbleLeftRight } from "react-icons/hi2";
-import { HiOutlineCurrencyDollar } from "react-icons/hi2";
-import { HiMiniCurrencyDollar } from "react-icons/hi2";
-import { HiOutlineQuestionMarkCircle } from "react-icons/hi2"; // Import unselected icon
-import { HiQuestionMarkCircle } from "react-icons/hi2"; // Import selected icon
+import { useSession, signOut } from "next-auth/react";
+import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from "react-icons/md";
+import { AiOutlineHome, AiFillHome } from "react-icons/ai";
+import { HiOutlineChatBubbleLeftRight, HiChatBubbleLeftRight } from "react-icons/hi2";
+import { HiOutlineCurrencyDollar, HiMiniCurrencyDollar } from "react-icons/hi2";
+import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2"; 
+import { SlLogout } from "react-icons/sl";
 
-import Link from "next/link";
 import LoginPopup from "./LoginPopup";
 import { useState } from "react";
 
 export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLinks }) {
     const { data: session, status } = useSession();
     const [showLoginPopup, setShowLoginPopup] = useState(false);
+    const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
+
+    const handleLogout = () => {
+        setShowLogoutConfirmation(true);
+    };
+
+    const confirmLogout = () => {
+        signOut();
+        setShowLogoutConfirmation(false);
+    };
 
     return (
         <nav className={`fixed flex flex-col justify-between text-md top-0 left-0 h-full bg-[#1f1e1e] max-w-64 ${isOpen ? 'w-[60%] p-5' : 'w-16'} transition-all`}>
@@ -36,7 +41,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                 )}
                 <div className="mt-4 w-full">
                     {navLinks && navLinks.map(link => (
-                        <div key={link} onClick={() => setNavItem(link)} // Removed auto-open functionality here
+                        <div key={link} onClick={() => setNavItem(link)}
                             className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-4 flex p-4 rounded-xl hover:bg-slate-400 hover:bg-opacity-30 hover:text-white 
                                 ${navItem === link ? 'bg-slate-400 bg-opacity-30' : ''}
                                 ${!isOpen ? 'justify-center' : ''}`}>
@@ -69,8 +74,38 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
             </div>
 
             <div className="relative items-end z-[999]">
-                <LoginPopup isOpen={isOpen} />
+                {session ? (
+                    <div className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-4 flex p-4 rounded-xl hover:bg-slate-400 hover:bg-opacity-30 hover:text-white ${!isOpen ? 'justify-center' : ''}`} onClick={handleLogout}>
+                        <SlLogout size={24} />
+                        {isOpen && "Logout"}
+                    </div>
+                ) : (
+                    <LoginPopup isOpen={isOpen} />
+                )}
             </div>
+
+            {showLogoutConfirmation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <h2 className="text-xl font-bold mb-4">Confirm Logout</h2>
+                        <p className="mb-6">Are you sure you want to sign out?</p>
+                        <div className="flex justify-end space-x-4">
+                            <button 
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                                onClick={() => setShowLogoutConfirmation(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                onClick={confirmLogout}
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </nav>
     )
 }

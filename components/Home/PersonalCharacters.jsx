@@ -4,8 +4,9 @@ import Carousel from './Carousel'
 
 // Text Component
 const TextSection = () => (
-  <div className="text-white w-[70%]">
-    <h2 className="text-2xl font-semibold mb-4">Get Personal with <span className="text-yellow-200 font-bold">anione</span> favourite characters 😉</h2>
+  <div className="text-white w-[100%]">
+    <h1 className="text-3xl font-semibold mb-4">Get Personal with <span className="text-orange-300 font-bold">anione</span> 😉</h1>
+    <p className="font-semibold">AI characters that truly feel alive</p>
   </div>
 )
 
