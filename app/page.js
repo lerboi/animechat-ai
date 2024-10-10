@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Navbar from "@/components/Nav/Navbar";
 import ChatList from "@/components/Chats/ChatList";
-import ChatWindow from "@/components/ChatWindow";
+import ChatWindow from "@/components/Chats/ChatWindow";
 import PricingPage from "@/components/Pricing/PricingPage";
 import PersonalCharacters from "@/components/Home/PersonalCharacters";
 import Explore from "@/components/Home/Explore";

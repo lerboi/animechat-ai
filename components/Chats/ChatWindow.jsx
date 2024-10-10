@@ -4,15 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip, Mic } from 'lucide-react'
 
 const mockMessages = [
-  { id: 1, sender: 'Alice', content: 'Hey there! Hows it going?', timestamp: '9:30 PM', isUser: false },
-  { id: 2, sender: 'You', content: 'Hi Alice! Im doing well, thanks for asking. How about you?', timestamp: '9:31 PM', isUser: true },
-  { id: 3, sender: 'Alice', content: 'Im great! Just finished a really interesting book. Have you read anything good lately?', timestamp: '9:33 PM', isUser: false },
-  { id: 4, sender: 'You', content: 'Actually, yes! I just finished "The Midnight Library" by Matt Haig. It was fantastic!', timestamp: '9:35 PM', isUser: true },
-  { id: 5, sender: 'Alice', content: 'Oh, Ive heard good things about that one! What did you like about it?', timestamp: '9:36 PM', isUser: false },
-  { id: 6, sender: 'You', content: 'I loved the concept of exploring different life paths. It really makes you think about the choices we make and their impact.', timestamp: '9:38 PM', isUser: true },
-  { id: 7, sender: 'Alice', content: 'That sounds really thought-provoking. Ill have to add it to my reading list!', timestamp: '9:40 PM', isUser: false },
-  { id: 8, sender: 'You', content: 'Definitely do! Let me know what you think when you read it.', timestamp: '9:41 PM', isUser: true },
-  { id: 9, sender: 'Alice', content: 'Will do! Thanks for the recommendation.', timestamp: '9:42 PM', isUser: false },
+  { id: 1, sender: 'Alice', content: 'hey', timestamp: '9:30 PM', isUser: false },
+  { id: 2, sender: 'You', content: 'what are you doing?', timestamp: '9:31 PM', isUser: true },
 ]
 
 export default function ChatWindow({ selectedChat }) {
@@ -28,19 +21,33 @@ export default function ChatWindow({ selectedChat }) {
 
   async function handleSendMessage(e) {
     e.preventDefault()
-    //HANDLE USER MESSAGE
     if (newMessage.trim()) {
-      const message = {
+      const userMessage = {
         id: messages.length + 1,
         sender: 'You',
         content: newMessage,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isUser: true
       }
-      setMessages([...messages, message])
+      
+      // Add user message to the state
+      setMessages(prevMessages => [...prevMessages, userMessage])
       setNewMessage('')
+
+      // Get AI response
+      const aiResponse = await getAiResponse([...messages, userMessage])
+      
+      // Add AI message to the state
+      const aiMessage = {
+        id: messages.length + 2,
+        sender: 'Alice',
+        content: aiResponse,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isUser: false 
+      }
+      
+      setMessages(prevMessages => [...prevMessages, aiMessage])
     }
-    getAiResponse(messages)
   }
 
   //FUNCTION TO GET AI MESSAGE
@@ -54,12 +61,16 @@ export default function ChatWindow({ selectedChat }) {
     })
     if (response.ok){
       const reply = await response.json()
-      console.log(reply)
+      console.log("AI response: " + reply.results[0].text)
+      return (reply.results[0].text)
     }
     else{
       console.log("Not pending")
+      return "Sorry, I couldn't process your request at the moment."
     }
   }
+
+  //--------------------------------------------------------------------------------------------------------
 
   if (!selectedChat) 
     return (
