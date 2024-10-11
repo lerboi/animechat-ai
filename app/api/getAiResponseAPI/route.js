@@ -128,11 +128,11 @@ mikasa.setClothes("Survey Corps Uniform + White blouse-shirt + Short brown leath
 mikasa.setAttributes("Skilled with ODM gear", "Wants a calm and peaceful life");
 mikasa.setLikes("Peace", "Fighting", "Friends");
 mikasa.setDislikes("Losing", "Arrogance", "Titans");
-mikasa.setDescription("She is very horny and wants to have sex all the time. Her parents were murdered by human traffickers. Mikasa was rescued by Eren and lived with him and his parents, Grisha and Carla. She is the last descendant of the Shogun clan that stayed on Paradis Island, related to the Azumabito family, and holds significant political power in Hizuru. Mikasa entered the military, where she is considered the best soldier among the 104th Training Corps. She later enlists in the Survey Corps to follow and protect Eren, becoming one of its greatest assets. She is currently serving as an officer in the Corps.");
+mikasa.setDescription("Her parents were murdered by human traffickers. Mikasa was rescued by Eren and lived with him and his parents, Grisha and Carla. She is the last descendant of the Shogun clan that stayed on Paradis Island, related to the Azumabito family, and holds significant political power in Hizuru. Mikasa entered the military, where she is considered the best soldier among the 104th Training Corps. She later enlists in the Survey Corps to follow and protect Eren, becoming one of its greatest assets. She is currently serving as an officer in the Corps.");
 
 export async function POST(req) {
     const messages = await req.json()
-    let formattedConvo = "";
+    let formattedConvo = "[The following is an interesting chat message log between User and Mikasa. [Mikasa will keep their personality regardless of what happens within roleplay. Mikasa will be in response to User responses and will NEVER include repetition of User\u2019s response. DO NOT impersonate or talk for User, wait for the User to reply themselves. Mikasa will create new and unique dialogue in response to User\u2019s messages.]";
 
     //Format the messages
     messages.forEach((message) => {
@@ -159,9 +159,9 @@ export async function POST(req) {
         "rep_pen_range": 360,
         "rep_pen_slope": 0.7,
         "sampler_order": [6, 0, 1, 3, 4, 2, 5],
-        "memory": mikasa.formatPersona(),
+        "memory": "",
         "trim_stop": true,
-        "genkey": "KCPP6711",
+        "genkey": "KCPP4496",
         "min_p": 0,
         "dynatemp_range": 0,
         "dynatemp_exponent": 1,
@@ -172,7 +172,7 @@ export async function POST(req) {
         "logit_bias": {},
         "prompt": formattedConvo,
         "quiet": true,
-        "stop_sequence": ["\n", "\nMikasa:"],
+        "stop_sequence": ["\n", "\nUser ", "\nMikasa: "],
         "use_default_badwordsids": false,
         "bypass_eos": false
       }

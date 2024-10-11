@@ -15,8 +15,8 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   
   useEffect(() => {
-    console.log(session, status)
-  }, [session, status])
+    console.log("Selected Chat " + selectedChat)
+  }, [selectedChat])
 
   const navLinks = ["Home", "Chats", "Pricing", "Help"]
   const cards = [
