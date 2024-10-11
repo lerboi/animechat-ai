@@ -15,12 +15,12 @@ export default function LoginPopup({isOpen}) {
   const [isClosing, setIsClosing] = useState(false)
   const [showEmailLogin, setShowEmailLogin] = useState(false)
   const [showRegistration, setShowRegistration] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
   const [animationOrigin, setAnimationOrigin] = useState({ x: 0, y: 0 })
   const popupRef = useRef(null)
-
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  
   useEffect(() => {
     setError(null)
   }, [email, password])
@@ -58,21 +58,27 @@ export default function LoginPopup({isOpen}) {
 
   async function handleRegistration(e) {
     e.preventDefault()
-    // Add your registration logic here
-    // For example:
-    const response = await fetch('/api/register', {
+    const response = await fetch('/api/registerUserAPI', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      headers: { 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify(
+        { email, password }
+      ),
     })
 
     if (response.ok) {
-      // Registration successful, you might want to sign in the user automatically
-      await signIn("credentials", { redirect: false, email, password })
+      await signIn("credentials", { 
+          redirect: false, 
+          email, 
+          password 
+        })
+
       window.location.href = "/"
     } else {
       const data = await response.json()
-      setError(data.message || 'Registration failed')
+      setError(data.error || 'Registration failed')
     }
   }
 
@@ -90,11 +96,11 @@ export default function LoginPopup({isOpen}) {
       setShowEmailLogin(false)
       setShowRegistration(false)
       setIsClosing(false)
-    }, 300) // Match this with the animation duration
+    }, 300)
   }
 
   return (
-    <div>
+    <>
       {/* Login Popup Icon at Navbar */}
       {isOpen ? (
         session? 
@@ -130,6 +136,7 @@ export default function LoginPopup({isOpen}) {
 
             <div className="flex transition-transform duration-300 ease-in-out" 
                  style={{ transform: showRegistration ? 'translateX(-200%)' : showEmailLogin ? 'translateX(-100%)' : 'translateX(0)' }}>
+
               {/* Main Popup Page */}
               <div className="w-full flex-shrink-0">
                 <div className="p-6">
@@ -222,6 +229,7 @@ export default function LoginPopup({isOpen}) {
                   </Button>
                 </div>
               </div>
+
               {/* Registration Page */}
               <div className="w-full flex-shrink-0">
                 <div className="p-6">
@@ -247,10 +255,7 @@ export default function LoginPopup({isOpen}) {
 
                     <Button type="submit" className="w-full">Register</Button>
                   </form>
-                  <Button variant="link" className="mt-4 w-full" onClick={() => {
-                    setShowRegistration(false)
-                    setShowEmailLogin(true)
-                  }}>
+                  <Button variant="link" className="mt-4 w-full" onClick={() => { setShowRegistration(false), setShowEmailLogin(true), setError("")}}>
                     Back to Login
                   </Button>
                 </div>
@@ -281,6 +286,6 @@ export default function LoginPopup({isOpen}) {
           }
         }
       `}</style>
-    </div>
+    </>
   )
 }

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Navbar from "@/components/Nav/Navbar";
 import ChatList from "@/components/Chats/ChatList";
@@ -13,6 +13,10 @@ export default function Home() {
   const [selectedChat, setSelectedChat] = useState(null)
   const [navItem, setNavItem] = useState("Home")
   const [isOpen, setIsOpen] = useState(false);
+  
+  useEffect(() => {
+    console.log(session, status)
+  }, [session, status])
 
   const navLinks = ["Home", "Chats", "Pricing", "Help"]
   const cards = [
@@ -31,10 +35,11 @@ export default function Home() {
         <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
         <div className={`${contentClasses}`}>
           <div className="mb-10">
-            <PersonalCharacters />
+            <PersonalCharacters isOpen={isOpen}/>
           </div>
           <div>
             <Explore />
+            {session? <h1 className="text-white">Logged in</h1> : <h1 className="text-white">Not logged in</h1>}
           </div>
         </div>
       </>

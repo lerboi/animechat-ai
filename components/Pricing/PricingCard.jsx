@@ -8,7 +8,7 @@ export function PricingCard({ name, price, benefits, isSelected, onSelect }) {
       className={`bg-gray-800 bg-opacity-50 rounded-lg p-8 transition-all duration-300 ease-in-out
         ${
           isSelected
-            ? 'ring-2 ring-white shadow-lg shadow-white/20 transform scale-105'
+            ? 'ring-2 ring-white shadow-lg shadow-white/20 transform scale-105 z-[-1]'
             : 'hover:ring-1 hover:ring-white/50 hover:shadow-md hover:shadow-white/10 hover:transform hover:scale-102'
         }`}
       onClick={onSelect}

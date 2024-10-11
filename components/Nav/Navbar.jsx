@@ -75,7 +75,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
 
             <div className="relative items-end z-[999]">
                 {session ? (
-                    <div className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-4 flex p-4 rounded-xl hover:bg-slate-400 hover:bg-opacity-30 hover:text-white ${!isOpen ? 'justify-center' : ''}`} onClick={handleLogout}>
+                    <div className={`text-slate-200 m-1 items-center gap-3 hover:cursor-pointer mt-4 flex p-4 rounded-xl hover:bg-slate-400 hover:bg-opacity-30 hover:text-white ${!isOpen ? 'justify-center' : ''}`} onClick={handleLogout}>
                         <SlLogout size={24} />
                         {isOpen && "Logout"}
                     </div>

@@ -11,7 +11,7 @@ const TextSection = () => (
 )
 
 // Main Component
-export default function PersonalCharacters() {
+export default function PersonalCharacters({ isOpen }) {
   const characters = [
     { title: "Anime Girl 1", imageUrl: "/mock1.jpg" },
     { title: "Anime Boy 1", imageUrl: "/mock2.jpg" },
@@ -27,7 +27,7 @@ export default function PersonalCharacters() {
         <TextSection/>
       </div>
       <div className="col-span-2">
-        <Carousel characters={characters}/>
+        <Carousel isOpen={isOpen} characters={characters}/>
       </div>
     </div>
     </>

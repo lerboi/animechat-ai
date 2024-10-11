@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const CharacterCard = ({ title, imageUrl }) => {
+export function CharacterCard ({ title, imageUrl, isMiddle, isOpen }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div 
       className="relative w-64 h-96 rounded-lg overflow-hidden cursor-pointer transition-all duration-300"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => isMiddle && setIsHovered(true)}
+      onMouseLeave={() => isMiddle && setIsHovered(false)}
     >
       <img src={imageUrl} alt={title} className="w-full h-full object-cover rounded-xl" />
-      {isHovered && (
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-black flex flex-col items-center justify-end pb-4">
+      {isHovered && isMiddle && !isOpen && (
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-black flex flex-col items-center justify-end pb-4 transition">
           <h3 className="text-white text-xl font-bold mb-2">{title}</h3>
           <Button variant="secondary">Add</Button>
         </div>
@@ -22,7 +22,7 @@ const CharacterCard = ({ title, imageUrl }) => {
   );
 };
 
-const Carousel = ({ characters }) => {
+export default function Carousel ({ characters, isOpen }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [direction, setDirection] = useState(0);
@@ -69,7 +69,7 @@ const Carousel = ({ characters }) => {
             <div
               key={index}
               className={`absolute transition-all duration-500 ease-in-out ${
-                i === 1 ? 'z-20 scale-100' : 'z-10 scale-75'
+                i === 1 ? ` ${isOpen? 'z[-1]' : 'z-20' } scale-100` : `${isOpen? 'z[-1]' : 'z-10' } scale-75`
               } ${
                 i === 0 ? '-translate-x-full' : i === 2 ? 'translate-x-full' : ''
               }`}
@@ -81,7 +81,7 @@ const Carousel = ({ characters }) => {
                   : 'none',
               }}
             >
-              <CharacterCard {...characters[index]} />
+              <CharacterCard {...characters[index]} isMiddle={i === 1} isOpen={isOpen} />
             </div>
           ))}
         </div>
@@ -97,5 +97,3 @@ const Carousel = ({ characters }) => {
     </div>
   );
 };
-
-export default Carousel;
