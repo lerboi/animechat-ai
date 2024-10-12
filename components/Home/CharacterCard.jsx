@@ -1,23 +1,116 @@
-import { useState } from "react";
+"use client"
+import { useState, useEffect } from "react";
+import { BsChatDots } from "react-icons/bs";
+import { useSession } from "next-auth/react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+export default function CharacterCard({ character }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [typedDescription, setTypedDescription] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { data: session } = useSession();
 
-export default function CharacterCard ({ title, imageUrl, isMiddle, isOpen }) {
-    const [isHovered, setIsHovered] = useState(false);
-  
-    return (
+  useEffect(() => {
+    if (isHovered) {
+      let i = 0;
+      const typingInterval = setInterval(() => {
+        setTypedDescription(character.description.slice(0, i));
+        i++;
+        if (i > character.description.length) {
+          clearInterval(typingInterval);
+        }
+      }, 20);
+
+      return () => clearInterval(typingInterval);
+    } else {
+      setTypedDescription('');
+    }
+  }, [isHovered, character.description]);
+
+  async function addToChat(character) {
+    if (!session) {
+      alert("Please log in");
+      return;
+    }
+    setIsDialogOpen(true);
+  }
+
+  async function confirmAddToChat() {
+    try {
+      const response = await fetch("/api/addCharacterToChatAPI", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ characterId: character.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add character to chat");
+      }
+
+      const data = await response.json();
+      console.log("Character added to chat:", data);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding character to chat:", error);
+      alert("Failed to add character to chat. Please try again.");
+    }
+  }
+
+  return (
+    <>
       <div 
-        className="relative w-64 h-96 rounded-lg overflow-hidden cursor-pointer transition-all duration-300"
-        onMouseEnter={() => isMiddle && setIsHovered(true)}
-        onMouseLeave={() => isMiddle && setIsHovered(false)}
+        className={`relative w-64 h-96 rounded-lg overflow-hidden shadow-lg m-2 transition-all duration-300 ${
+          isHovered ? 'ring-2 ring-white cursor-pointer' : ''
+        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <img src={imageUrl} alt={title} className="w-full h-full object-cover rounded-xl" />
-        {isHovered && isMiddle && !isOpen && (
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-black flex flex-col items-center justify-end pb-4 transition">
-            <h3 className="text-white text-xl font-bold mb-2">{title}</h3>
-            <Button variant="secondary">Add</Button>
+        <img src={character.picture} alt={character.name} className="w-full h-full object-cover" />
+        <div 
+          className={`absolute inset-0 bg-black transition-opacity duration-300 ${
+            isHovered ? 'opacity-70' : 'opacity-0'
+          }`}
+        ></div>
+        <div 
+          className={`absolute inset-x-0 bottom-0 p-4 transition-all duration-300 ${
+            isHovered ? 'h-full flex flex-col justify-between' : 'h-1/2 bg-gradient-to-t from-black to-transparent'
+          }`}
+        >
+          <div className="flex-grow">
+            <h3 className="text-white text-xl font-bold mb-2">{character.name}</h3>
+            <span className="text-gray-300 text-xs block mb-2">{character.engagementMetric} views</span>
+            {isHovered ? (
+              <p className="text-white text-sm mb-2 overflow-hidden">{typedDescription}</p>
+            ) : (
+              <p className="text-white text-sm mb-2 line-clamp-2">{character.description}</p>
+            )}
           </div>
-        )}
+          {isHovered && (
+            <button onClick={() => addToChat(character)} className="bg-white text-black py-2 px-4 rounded-full flex items-center justify-center mt-2">
+              <BsChatDots className="mr-2" />
+              Chat
+            </button>
+          )}
+        </div>
       </div>
-    );
-  };
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to Chat</DialogTitle>
+            <DialogDescription>
+              Add this character to chat?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Back</Button>
+            <Button onClick={confirmAddToChat}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

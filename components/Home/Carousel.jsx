@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import CharacterCard from './CharacterCard';
+import CarouselCard from './CarouselCard';
 
 export default function Carousel ({ characters, isOpen }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -61,7 +61,7 @@ export default function Carousel ({ characters, isOpen }) {
                   : 'none',
               }}
             >
-              <CharacterCard {...characters[index]} isMiddle={i === 1} isOpen={isOpen} />
+              <CarouselCard {...characters[index]} isMiddle={i === 1} isOpen={isOpen} />
             </div>
           ))}
         </div>

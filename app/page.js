@@ -13,7 +13,7 @@ export default function Home() {
   const [selectedChat, setSelectedChat] = useState(null)
   const [navItem, setNavItem] = useState("Home")
   const [isOpen, setIsOpen] = useState(false);
-  
+
   useEffect(() => {
     console.log("Selected Chat " + selectedChat)
   }, [selectedChat])
@@ -35,11 +35,11 @@ export default function Home() {
         <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
         <div className={`${contentClasses}`}>
           <div className="mb-10">
-            <PersonalCharacters isOpen={isOpen}/>
+            <PersonalCharacters isOpen={isOpen} />
           </div>
           <div>
             <Explore />
-            {session? <h1 className="text-white">Logged in</h1> : <h1 className="text-white">Not logged in</h1>}
+            {session ? <h1 className="text-white">Logged in</h1> : <h1 className="text-white">Not logged in</h1>}
           </div>
         </div>
       </>

@@ -45,6 +45,7 @@ model Character {
   tags         Tag[]      @relation("CharacterTags") // A character can have multiple tags
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  picture      String?
 
   personaData   Persona?   @relation(fields: [personaId], references: [id])
   personaId     Int?       @unique // Foreign key reference to Persona
