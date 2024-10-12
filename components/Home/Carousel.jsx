@@ -38,7 +38,7 @@ export default function Carousel ({ characters, isOpen }) {
       <div className="relative w-full max-w-[800px] h-full flex items-center justify-between px-4">
         <button
           onClick={prevSlide}
-          className="z-10 text-white absolute left-0 hover:text-gray-300 transition-colors"
+          className="z-50 text-white absolute left-0 hover:text-gray-300 transition-colors"
           aria-label="Previous character"
         >
           <ChevronLeft size={36} />
