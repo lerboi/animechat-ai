@@ -62,7 +62,7 @@ export default function CharacterCard({ character }) {
   return (
     <>
       <div 
-        className={`relative w-64 h-96 rounded-lg overflow-hidden shadow-lg m-2 transition-all duration-300 ${
+        className={`relative w-64 h-96 sm:scale-85 md:scale-100 lg:scale-100 rounded-lg overflow-hidden shadow-lg m-2 transition-all duration-300 ${
           isHovered ? 'ring-2 ring-white cursor-pointer' : ''
         }`}
         onMouseEnter={() => setIsHovered(true)}

@@ -4,19 +4,39 @@ const tiers = [
   {
     name: 'Free',
     price: '$0',
-    benefits: ['Basic features', 'Limited storage', 'Email support'],
+    benefits: [
+      'Access to NSFW chats',
+      'Up to 3 Chats',
+      'Up to 20 Messages a day',
+      'High-Quality AI Response',
+      'Characters retain memory of chats',
+      'No ads',
+    ],
+  },
+  {
+    name: 'Plus+',
+    price: '$9.99',
+    benefits: [
+      'Up to 200 Messages a day',
+      'Access to NSFW Pictures',
+      'Up to 10 Pictures a day',
+      'Up to 10 Chats',
+      'Access to pictures',
+      'Enhanced Chat memory',
+    ],
   },
   {
     name: 'Premium',
-    price: '$9.99',
-    benefits: ['Advanced features', 'Increased storage', 'Priority support'],
-  },
-  {
-    name: 'Premium+',
     price: '$19.99',
-    benefits: ['All features', 'Unlimited storage', '24/7 dedicated support'],
+    benefits: [
+      'Unlimited Messages a day',
+      'Unlimited Chats',
+      'Unlimited Pictures a day',
+      'Create your own Characters',
+    ],
   },
 ]
+
 
 export default function PricingPage() {
   const [selectedTier, setSelectedTier] = React.useState('Premium')

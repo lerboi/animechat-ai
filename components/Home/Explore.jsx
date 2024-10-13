@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MdOutlineExplore } from "react-icons/md";
 import CharacterCard from './CharacterCard';
 
@@ -10,6 +10,7 @@ const categories = [
 export default function Explore() {
   const [characters, setCharacters] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Recommend");
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     async function getCharacters() {
@@ -28,15 +29,21 @@ export default function Explore() {
     getCharacters();
   }, []);
 
+  const handleScroll = (scrollOffset) => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft += scrollOffset;
+    }
+  };
+
   return (
-    <div className="bg-transparent min-h-screen p-8">
+    <div className="bg-transparent min-h-screen p-4 sm:p-8">
       <div className="flex items-center mb-8">
         <MdOutlineExplore className="text-white text-3xl mr-4" />
         <h1 className="text-white text-2xl font-semibold">Explore</h1>
       </div>
 
-      <div className="mb-8 overflow-x-hidden">
-        <div className="flex space-x-4">
+      <div className="mb-8 overflow-x-auto hide-scrollbar">
+        <div className="flex space-x-4 min-w-max">
           {categories.map((category) => (
             <button
               key={category}
@@ -53,10 +60,33 @@ export default function Explore() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {characters.map(character => (
-          <CharacterCard key={character.id} character={character} />
-        ))}
+      <div className="relative">
+        <div 
+          ref={scrollContainerRef}
+          className="grid grid-rows-2 lg:grid-rows-1 grid-flow-col auto-cols-max scrollbar-hide overflow-x-auto overflow-y-hidden pb-4 sm:pb-6"
+        >
+          {characters.map(character => (
+            <div key={character.id} className="">
+              <CharacterCard character={character} />
+            </div>
+          ))}
+        </div>
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+          <button 
+            onClick={() => handleScroll(-200)} 
+            className="bg-gray-800 bg-opacity-50 text-white rounded-full p-2 focus:outline-none"
+          >
+            &lt;
+          </button>
+        </div>
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+          <button 
+            onClick={() => handleScroll(200)} 
+            className="bg-gray-800 bg-opacity-50 text-white rounded-full p-2 focus:outline-none"
+          >
+            &gt;
+          </button>
+        </div>
       </div>
     </div>
   );
