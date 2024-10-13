@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip, Mic } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 const mockMessages = [
   { id: 1, sender: 'Alice', content: 'hey', timestamp: '9:30 PM', isUser: false },
@@ -9,9 +10,11 @@ const mockMessages = [
 ]
 
 export default function ChatWindow({ selectedChat }) {
+  console.log("Selected Chat ID = " + JSON.stringify(selectedChat)||"none")
   const [messages, setMessages] = useState(mockMessages)
   const [newMessage, setNewMessage] = useState('')
   const messagesEndRef = useRef(null)
+  const { data: session } = useSession()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -37,40 +40,76 @@ export default function ChatWindow({ selectedChat }) {
       // Get AI response
       const aiResponse = await getAiResponse([...messages, userMessage])
       
-      // Add AI message to the state
-      const aiMessage = {
-        id: messages.length + 2,
-        sender: 'Alice',
-        content: aiResponse,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isUser: false 
+      if (aiResponse) {
+        // Add AI message to the state
+        const aiMessage = {
+          id: messages.length + 2,
+          sender: selectedChat.name,
+          content: aiResponse,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isUser: false 
+        }
+        
+        setMessages(prevMessages => [...prevMessages, aiMessage])
+
+        // Update chat history
+        await addChatHistory(userMessage, aiMessage)
       }
-      
-      setMessages(prevMessages => [...prevMessages, aiMessage])
     }
   }
 
-  //FUNCTION TO GET AI MESSAGE
+  async function addChatHistory(userMessage, aiMessage) {
+    try {
+      const response = await fetch("/api/addChatHistoryAPI", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          characterId: selectedChat.id,
+          userMessage,
+          aiMessage
+        })
+      })
+      if (!response.ok) {
+        throw new Error("Failed to update chat history")
+      }
+    } catch (error) {
+      console.error("Error updating chat history:", error)
+    }
+  }
+
   async function getAiResponse(messages){
-    const response = await fetch("/api/getAiResponseAPI", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(messages)
-    })
-    if (response.ok){
-      const reply = await response.json()
-      console.log("AI response: " + reply.results[0].text)
-      return (reply.results[0].text)
+    if (!session || !session.user) {
+      console.error("User not authenticated");
+      return null;
     }
-    else{
-      console.log("Not pending")
-      return "Sorry, I couldn't process your request at the moment."
+
+    try {
+      const response = await fetch("/api/getAiResponseAPI", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages: messages,
+          characterId: selectedChat.character.id,
+          userId: session.user.id
+        })
+      })
+      if (response.ok){
+        const reply = await response.json()
+        console.log("AI response: " + reply.results[0].text)
+        return reply.results[0].text
+      } else {
+        console.log("AI response not successful")
+        return null
+      }
+    } catch (error) {
+      console.error("Error getting AI response:", error)
+      return null
     }
   }
-
-  //--------------------------------------------------------------------------------------------------------
 
   if (!selectedChat) 
     return (
@@ -84,10 +123,10 @@ export default function ChatWindow({ selectedChat }) {
       {/* Name Section */}
       <div className="p-4 border-b border-gray-700 flex items-center">
         <div className="w-10 h-10 rounded-full bg-[#3a3a3a] flex items-center justify-center text-lg font-semibold mr-3">
-          {selectedChat.avatar || selectedChat.name[0]}
+          {<img className="w-10 h-10 rounded-full object-cover" src={selectedChat.character.picture}/> || selectedChat.name[0]}
         </div>
         <div>
-          <h2 className="font-semibold">{selectedChat.name}</h2>
+          <h2 className="font-semibold">{selectedChat.character.name}</h2>
           <p className="text-sm text-gray-400">online</p>
         </div>
       </div>
