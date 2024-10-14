@@ -3,23 +3,29 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function POST(req) {
+export async function GET(req) {
     const session = await getServerSession(authOptions);
 
     if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    try {
-        const { characterId, message } = await req.json();
+    const { searchParams } = new URL(req.url);
+    const characterId = searchParams.get('characterId');
+    const userId = searchParams.get('userId');
 
+    if (!characterId || !userId) {
+        return NextResponse.json({ error: "Missing characterId or userId" }, { status: 400 });
+    }
+
+    try {
         const userCharacter = await prisma.userCharacter.findFirst({
             where: {
-                userId: session.user.id,
-                characterId: parseInt(characterId)
+                userId: userId,
+                characterId: parseInt(characterId),
             },
             include: {
-                character: true // Include the Character table
+                character: true
             }
         });
 
@@ -27,22 +33,12 @@ export async function POST(req) {
             return NextResponse.json({ error: "UserCharacter not found" }, { status: 404 });
         }
 
-        const newChatHistory = [
-            ...userCharacter.chatHistory,
-            `${message.isUser ? 'User' : userCharacter.character.name}: "${message.content}"`
-        ];
-
-        await prisma.userCharacter.update({
-            where: { id: userCharacter.id },
-            data: { 
-                chatHistory: newChatHistory,
-                updatedAt: new Date()
-            }
+        return NextResponse.json({ 
+            chatHistory: userCharacter.chatHistory,
+            characterName: userCharacter.character.name
         });
-
-        return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Error updating chat history:", error);
+        console.error("Error fetching chat history:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

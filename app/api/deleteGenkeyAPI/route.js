@@ -11,38 +11,29 @@ export async function POST(req) {
     }
 
     try {
-        const { characterId, message } = await req.json();
+        const { characterId, userId } = await req.json();
 
         const userCharacter = await prisma.userCharacter.findFirst({
             where: {
-                userId: session.user.id,
-                characterId: parseInt(characterId)
+                userId: userId,
+                characterId: parseInt(characterId),
             },
-            include: {
-                character: true // Include the Character table
-            }
         });
 
         if (!userCharacter) {
             return NextResponse.json({ error: "UserCharacter not found" }, { status: 404 });
         }
 
-        const newChatHistory = [
-            ...userCharacter.chatHistory,
-            `${message.isUser ? 'User' : userCharacter.character.name}: "${message.content}"`
-        ];
-
         await prisma.userCharacter.update({
             where: { id: userCharacter.id },
             data: { 
-                chatHistory: newChatHistory,
-                updatedAt: new Date()
+                genkey: null
             }
         });
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Error updating chat history:", error);
+        console.error("Error deleting genkey:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

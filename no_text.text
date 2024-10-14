@@ -1,0 +1,10 @@
+What am i doing?
+Create a new Genkey to use in settings(getAiResponseAPI) everytime the user clicks on Reset Chat(ChatWindow.jsx).
+For default(getAiResponseAPI) , fetch Genkey from userCharacter, but if there is not GenKey, use a random generated one
+
+what i need?
+getAiResponseAPI, schema.prisma, ChatWindow.jsx
+
+
+Negative prompts
+blurry eyes, deformed eyes, asymmetrical eyes, extra eyes, fused eyes, discolored eyes, cross-eyed, lazy eye, low-resolution eyes, empty eyes, dull pupils, unnatural reflections, distorted face, missing iris, extra hands, extra fingers, deformed hands, incorrect anatomy, mismatched hand size, fused fingers, mutated limbs, twisted hand poses, cartoonish hands, glitchy anatomy, overexposed, pixelated fingers, unnatural gestures

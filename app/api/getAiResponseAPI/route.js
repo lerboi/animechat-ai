@@ -41,43 +41,26 @@ class Persona {
 
     formatPersona() {
         return (
-            `You are roleplaying as ${this.name}. Stay in character at all times, responding only as ${this.name}. Do not imitate the user or predict what the user will say next. Respond from your perspective, reflecting your personality and experiences.
-            Character Details:
-            - Name: ${this.name}
-            - Age: ${this.age}
-            - Gender: ${this.gender}
-            - Nationality: ${this.nationality}
-            - Sexuality: ${this.sexuality}
-            - Height: ${this.height}
-            - Species: ${this.species}
-            - Occupation: ${this.occupation}
-            - Affiliation: ${this.affiliation}
-
-            Personality:
-            - ${this.personality.join(", ")}
-
-            Appearance:
-            - ${this.appearance.join(", ")}
-
-            Attributes:
-            - ${this.attributes.join(", ")}
-
-            Likes:
-            - ${this.likes.join(", ")}
-
-            Dislikes:
-            - ${this.dislikes.join(", ")}
-
-            Description:
-            - ${this.description}
-            `
+            `Character Details: Name: ${this.name}, Age: ${this.age}, Gender: ${this.gender}, Nationality: ${this.nationality}, Sexuality: ${this.sexuality}, Height: ${this.height}, Species: ${this.species}, Occupation: ${this.occupation}, Affiliation: ${this.affiliation}, Personality: ${this.personality.join(", ")}, Appearance: ${this.appearance.join(", ")}, Attributes: ${this.attributes.join(", ")}, Likes: ${this.likes.join(", ")}, Dislikes: ${this.dislikes.join(", ")}, Description: ${this.description}, Scenario: User is on a ship with ${this.name} going on adventures together. ${this.name} has taken a liking to user. ${this.name} wants to have sex with you but is not direct about it. ${this.name} is secretly horny all the time.`
         );
     }
 }
 
-export async function POST(req) {
+async function getGenKey(userCharacter) {
+    if (userCharacter.genkey) {
+        return userCharacter.genkey;
+    } else {
+        const newGenkey = `KCPP${Math.floor(1000 + Math.random() * 9000)}`;
+        await prisma.userCharacter.update({
+            where: { id: userCharacter.id },
+            data: { genkey: newGenkey }
+        });
+        return newGenkey;
+    }
+}
+
+export async function  POST(req) {
     const { messages, characterId, userId } = await req.json();
-    console.log(messages, characterId, userId)
     try {
         const userCharacter = await prisma.userCharacter.findUnique({
             where: {
@@ -122,34 +105,24 @@ export async function POST(req) {
         persona.setDescription(personaData.description);
 
         // Helper function to truncate chat history to the last 20 messages
-        function getTruncatedMessages(messages, limit = 20) {
-            return messages.slice(-limit); // Retrieve only the last 20 messages
-        }
+        let formattedConvo = `<|system|>Enter Chat mode. Pretend to be ${character.name}. You shall reply to the {{user}} while staying in character, and generating appropriate Chat responses to {{user}} messages.\n\n[Chat History]\n`;
 
-        let truncatedMessages = getTruncatedMessages(messages);
-
-        let formattedConvo = `
-        [System Note: You are ${character.name}. Respond only as yourself, drawing from your background, traits, and emotions. Do not imitate the user or predict what the user will say next.]
-
-        [Chat History]
-        `;
-
-        truncatedMessages.forEach((message) => {
+        messages.forEach((message) => {
             if (message.isUser) {
-                formattedConvo += `User: "${message.content}"\n\n${character.name}: `;
+                formattedConvo += `User: ${message.content}\n${character.name}: <|model|>\n `;
             } else {
-                formattedConvo += `${character.name}: "${message.content}"\n`;
+                formattedConvo += `${character.name}: ${message.content}\n`;
             }
         });
 
-        formattedConvo += "[End of System Note]";
+        const genkey = await getGenKey(userCharacter);
 
         let settings = {
             "n": 1,
             "max_context_length": 4096,
             "max_length": 200,
             "rep_pen": 1.07,
-            "temperature": 0.7,
+            "temperature": 0.6,
             "top_p": 0.92,
             "top_k": 100,
             "top_a": 0,
@@ -160,8 +133,8 @@ export async function POST(req) {
             "sampler_order": [6, 0, 1, 3, 4, 2, 5],
             "memory": persona.formatPersona(),
             "trim_stop": true,
-            "genkey": "KCPP4490",
-            "min_p": 0.2,
+            "genkey": genkey,
+            "min_p": 0,
             "dynatemp_range": 0,
             "dynatemp_exponent": 1,
             "smoothing_factor": 0,
@@ -171,10 +144,12 @@ export async function POST(req) {
             "logit_bias": {},
             "prompt": formattedConvo,
             "quiet": true,
-            "stop_sequence": [],
+            "stop_sequence": [`${character.name}:`, '\n', "User:"],
             "use_default_badwordsids": false,
             "bypass_eos": false
         };
+
+        console.log("Genkey used: " + genkey)
 
         const endpoint = "http://localhost:5001/api/v1/generate";
         const response = await fetch(endpoint, {

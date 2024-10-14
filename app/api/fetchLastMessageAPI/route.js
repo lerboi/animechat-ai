@@ -17,14 +17,23 @@ export async function GET(req) {
             orderBy: { updatedAt: 'desc' }
         });
 
-        const lastMessages = userCharacters.map(uc => ({
-            id: uc.id,
-            characterId: uc.characterId,
-            name: uc.character.name,
-            avatar: uc.character.picture,
-            lastMessage: uc.chatHistory.length > 0 ? uc.chatHistory[uc.chatHistory.length - 1] : null,
-            updatedAt: uc.updatedAt
-        }));
+        const lastMessages = userCharacters.map(uc => {
+            let lastMessage = null;
+            if (uc.chatHistory.length > 0) {
+                const lastEntry = uc.chatHistory[uc.chatHistory.length - 1];
+                const [sender, content] = lastEntry.split(': ');
+                lastMessage = content ? content.replace(/^"|"$/g, '') : null;
+            }
+
+            return {
+                id: uc.id,
+                characterId: uc.characterId,
+                name: uc.character.name,
+                avatar: uc.character.picture,
+                lastMessage: lastMessage,
+                updatedAt: uc.updatedAt
+            };
+        });
 
         return NextResponse.json(lastMessages);
     } catch (error) {

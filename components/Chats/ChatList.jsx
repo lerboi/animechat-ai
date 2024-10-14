@@ -68,7 +68,7 @@ export default function ChatList({ onSelectChat }) {
   }
 
   if (!session) {
-    return <div className="p-4 text-center">Please log in to view your chats.</div>
+    return <div className="p-4 text-center text-white">Please log in to view your chats.</div>
   }
 
   return (
@@ -101,9 +101,11 @@ export default function ChatList({ onSelectChat }) {
                     {new Date(character.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
-                {character.lastMessage && (
-                  <p className="text-xs text-gray-400 truncate">{character.uc.chatHistory.length > 0 ? uc.chatHistory[uc.chatHistory.length - 1] : null}</p>
-                )}
+                {character.lastMessage ? 
+                  <p className="text-xs text-gray-400 truncate">{character?.chatHistory?.length > 0 ? character.chatHistory[character.chatHistory.length - 1] : null}</p>
+                  :
+                  <p className='opacity-50 text-sm'></p>
+                }
               </div>
             </div>
           ))

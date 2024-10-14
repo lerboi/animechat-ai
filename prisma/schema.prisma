@@ -81,6 +81,7 @@ model UserCharacter {
   character     Character  @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId   Int
 
+  genkey        String?   
   version       Int        @default(1) // Version number for the unique copy of the character
 
   chatHistory   String[]   // Array of strings to store user-specific chat history for this character version
