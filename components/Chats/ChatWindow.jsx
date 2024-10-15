@@ -10,13 +10,16 @@ const mockMessages = [
   { id: 2, sender: 'You', content: 'what are you doing?', timestamp: '9:31 PM', isUser: true },
 ]
 
-export default function ChatWindow({ selectedChat }) {
+export default function ChatWindow({ selectedChat, onMessageSent }) {
   const [messages, setMessages] = useState(mockMessages)
   const [newMessage, setNewMessage] = useState('')
   const messagesEndRef = useRef(null)
   const { data: session } = useSession()
   const [showPopup, setShowPopup] = useState(false);
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [lastActive, setLastActive] = useState(new Date());
+  const [status, setStatus] = useState('online');
 
   const togglePopup = () => setShowPopup(!showPopup);
 
@@ -34,7 +37,8 @@ export default function ChatWindow({ selectedChat }) {
           }
           const data = await response.json();
           const formattedMessages = data.chatHistory.map((message, index) => {
-            const [sender, content] = message.split(': ');
+            const [sender, ...contentParts] = message.split(':', 2); // Split at the first colon only
+            const content = contentParts.join(':').trim();
             return {
               id: index,
               sender: sender === 'User' ? 'You' : sender,
@@ -44,6 +48,10 @@ export default function ChatWindow({ selectedChat }) {
             };
           });
           setMessages(formattedMessages);
+          if (formattedMessages.length > 0) {
+            const lastMessage = formattedMessages[formattedMessages.length - 1];
+            setLastActive(new Date(lastMessage.timestamp));
+          }
         } catch (error) {
           console.error('Error fetching chat history:', error);
         }
@@ -53,7 +61,19 @@ export default function ChatWindow({ selectedChat }) {
     fetchChatHistory();
   }, [selectedChat, session])
 
-  useEffect(scrollToBottom, [messages])
+  useEffect(scrollToBottom, [messages, isTyping])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (new Date() - lastActive > 60000) { // 1 minute
+        setStatus(`last seen at ${lastActive.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+      } else {
+        setStatus('online');
+      }
+    }, 10000); // Check every 10 seconds
+
+    return () => clearInterval(timer);
+  }, [lastActive]);
 
   async function handleSendMessage(e) {
     e.preventDefault()
@@ -69,14 +89,25 @@ export default function ChatWindow({ selectedChat }) {
       // Add user message to the state
       setMessages(prevMessages => [...prevMessages, userMessage])
       setNewMessage('')
+      setLastActive(new Date());
+      setStatus('online');
 
       // Update chat history with user message
       await addChatHistory(userMessage)
+
+      // Notify parent component about the new message
+      onMessageSent(userMessage);
+
+      // Show typing indicator
+      setIsTyping(true);
 
       // Get AI response
       const aiResponse = await getAiResponse([...messages, userMessage])
       
       if (aiResponse) {
+        // Remove typing indicator
+        setIsTyping(false);
+
         // Add AI message to the state
         const aiMessage = {
           id: messages.length + 2,
@@ -87,9 +118,13 @@ export default function ChatWindow({ selectedChat }) {
         }
         
         setMessages(prevMessages => [...prevMessages, aiMessage])
+        setLastActive(new Date());
 
         // Update chat history with AI message
         await addChatHistory(aiMessage)
+
+        // Notify parent component about the new message
+        onMessageSent(aiMessage);
       }
     }
   }
@@ -228,7 +263,7 @@ export default function ChatWindow({ selectedChat }) {
           </div>
           <div>
             <h2 className="font-semibold">{selectedChat.character.name}</h2>
-            <p className="text-sm text-gray-400">online</p>
+            <p className="text-sm text-gray-400">{status}</p>
           </div>
         </div>
         <div className="relative">
@@ -264,11 +299,22 @@ export default function ChatWindow({ selectedChat }) {
             <div key={message.id} className={`mb-4 flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[70%] rounded-lg p-3 ${message.isUser ? 'bg-[#2b5278]' : 'bg-[#182533]'}`}>
                 {!message.isUser && <p className="text-sm font-semibold mb-1">{message.sender}</p>}
-                <p>{formatMessageContent(message.content)}</p> {/* Call the formatting function */}
+                <p>{formatMessageContent(message.content)}</p>
                 <p className="text-xs text-gray-400 mt-1">{message.timestamp}</p>
               </div>
             </div>
           ))}
+          {isTyping && (
+            <div className="mb-4 flex justify-start">
+              <div className="max-w-[70%] rounded-lg p-3 bg-[#182533]">
+                <div className="typing-indicator">
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -302,7 +348,7 @@ export default function ChatWindow({ selectedChat }) {
           <p className="text-white mb-4">Are you sure you want to Reset the chat? This action cannot be undone.</p>
           <div className="flex justify-end">
             <button
-              onClick={resetChat}
+              onClick={() => {resetChat(); setShowPopup(false)}}
               className="bg-red-500 text-white px-4 py-2 rounded mr-2 hover:bg-red-600"
             >
               Yes, I want to delete this chat

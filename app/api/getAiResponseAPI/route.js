@@ -111,18 +111,31 @@ export async function POST(req) {
         persona.setDescription(`"${personaData.description}"`);
 
 
-        let formattedPrompt = `[character("${character.name}"){\nPersona(${persona.personality})\nMind(${persona.mind}\n)}\n\n<START>\n[EXAMPLE DIALOGUE HISTORY]\nYou: hey whats up?\n[CHARACTER]: what do you want? you got treasure for me?\n\n<START>\n[DIALOGUE HISTORY]\nYou: Want to come in the bedroom with me?\n[CHARACTER]:*grins at you* for the right price, ill do anything :)\n\n]`;
+        let formattedPrompt = `[character("${character.name}")]
+        Enter RP mode. Pretend to be ${character.name}. ${character.name} is on a ship with User. 
+        Describe every action with meticulous detail, and generate medium-length responses.
+        MAKE SURE to end every dialogue with an action text that describes what ${character.name} is doing andher attire at that point. 
+        ${character.name} is flirtatious and makes subtle advances towards User. Ever end of the dialogue, ${character.name} should make action advances to User.
+
+        <START>
+        [DIALOGUE HISTORY]
+        User: hey, what's up?
+        ${character.name}: What do you want? Got treasure for me? *looks at you with hope*
+
+        <START>
+        [DIALOGUE HISTORY]
+        User: Want to come in the bedroom with me?
+        ${character.name}: *grins* For the right price, I'll do anything :) *touches her chest and winks at you*`;
 
         messages.forEach((message, index) => {
-            // Start a new dialogue block only if it's a user message
             if (message.isUser) {
-                formattedPrompt += `\n<START>\n[DIALOGUE HISTORY]\n`;
-                formattedPrompt += `You: ${message.content}\n`;
+                // Start a new dialogue block only on user input to avoid clutter
+                formattedPrompt += `\n<START>\n[DIALOGUE HISTORY]\nUser: ${message.content}\n${character.name}:`;
 
-                // Check if the next message is a character response
+                // Append the next message if it's the character's response
                 const nextMessage = messages[index + 1];
                 if (nextMessage && !nextMessage.isUser) {
-                    formattedPrompt += `[CHARACTER]: ${nextMessage.content}\n`;
+                    formattedPrompt += ` ${nextMessage.content}\n`;
                 }
             }
         });
@@ -134,14 +147,14 @@ export async function POST(req) {
             "max_context_length": 4096,
             "max_length": 200,
             "rep_pen": 1.07,
-            "temperature": 0.6,
-            "top_p": 0.92,
-            "top_k": 100,
+            "temperature": 0.7,  // Slightly increased for more organic responses
+            "top_p": 0.9,  // Narrower top-p for more focused responses
+            "top_k": 50,  // Reduced top-k to avoid overly random results
             "top_a": 0,
             "typical": 1,
             "tfs": 1,
-            "rep_pen_range": 360,
-            "rep_pen_slope": 0.7,
+            "rep_pen_range": 256,  // Lowered repetition penalty range
+            "rep_pen_slope": 0.6,
             "sampler_order": [6, 0, 1, 3, 4, 2, 5],
             "memory": persona.formatPersona(),
             "trim_stop": true,
@@ -150,13 +163,13 @@ export async function POST(req) {
             "dynatemp_range": 0,
             "dynatemp_exponent": 1,
             "smoothing_factor": 0,
-            "banned_tokens": [],
+            "banned_tokens": [],  // Keep this flexible to avoid unnecessary filtering
             "render_special": false,
-            "presence_penalty": 0,
+            "presence_penalty": 0.1,  // Introduced to reduce redundancy
             "logit_bias": {},
-            "prompt": formattedConvo,
+            "prompt": formattedPrompt,
             "quiet": true,
-            "stop_sequence": [`${character.name}:`, '\n', "User:"],
+            "stop_sequence": ['\n', "User:"],  // Ensure responses terminate correctly
             "use_default_badwordsids": false,
             "bypass_eos": false
         };
