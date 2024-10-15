@@ -41,7 +41,7 @@ class Persona {
 
     formatPersona() {
         return (
-            `Character Details: Name: ${this.name}, Age: ${this.age}, Gender: ${this.gender}, Nationality: ${this.nationality}, Sexuality: ${this.sexuality}, Height: ${this.height}, Species: ${this.species}, Occupation: ${this.occupation}, Affiliation: ${this.affiliation}, Personality: ${this.personality.join(", ")}, Appearance: ${this.appearance.join(", ")}, Attributes: ${this.attributes.join(", ")}, Likes: ${this.likes.join(", ")}, Dislikes: ${this.dislikes.join(", ")}, Description: ${this.description}, Scenario: User is on a ship with ${this.name} going on adventures together. ${this.name} has taken a liking to user. ${this.name} wants to have sex with you but is not direct about it. ${this.name} is secretly horny all the time.`
+            `Character Persona: Name: "${this.name}", Age: "${this.age}", Gender: "${this.gender}", Nationality: "${this.nationality}", Sexuality: "${this.sexuality}", Height: "${this.height}", Species: "${this.species}", Occupation: "${this.occupation}", Affiliation: "${this.affiliation}", Personality: "${this.personality.join(", ")}", Appearance: "${this.appearance.join(", ")}", Attributes: "${this.attributes.join(", ")}", Likes: "${this.likes.join(", ")}", Dislikes: "${this.dislikes.join(", ")}", Description: "${this.description}"`
         );
     }
 }
@@ -59,7 +59,7 @@ async function getGenKey(userCharacter) {
     }
 }
 
-export async function  POST(req) {
+export async function POST(req) {
     const { messages, characterId, userId } = await req.json();
     try {
         const userCharacter = await prisma.userCharacter.findUnique({
@@ -95,23 +95,35 @@ export async function  POST(req) {
         persona.setSpecies(personaData.species);
         persona.setOccupation(personaData.occupation);
         persona.setAffiliation(personaData.affiliation);
-        persona.setMind(...personaData.mind?.split(',').map(m => m.trim()));
-        persona.setPersonality(...personaData.personality?.split(',').map(p => p.trim()));
-        persona.setAppearance(...personaData.appearance?.split(',').map(a => a.trim()));
-        persona.setClothes(personaData.clothes);
-        persona.setAttributes(...personaData.attributes?.split(',').map(att => att.trim()));
-        persona.setLikes(...personaData.likes?.split(',').map(like => like.trim()));
-        persona.setDislikes(...personaData.dislikes?.split(',').map(dislike => dislike.trim()));
-        persona.setDescription(personaData.description);
+        persona.setAge(`"${personaData.age}"`);
+        persona.setGender(`"${personaData.gender}"`);
+        persona.setNationality(`"${personaData.nationality}"`);
+        persona.setSexuality(`"${personaData.sexuality}"`);
+        persona.setHeight(`"${personaData.height}"`);
+        persona.setSpecies(`"${personaData.species}"`);
+        persona.setOccupation(`"${personaData.occupation}"`);
+        persona.setAffiliation(`"${personaData.affiliation}"`);
+        persona.setAppearance(...personaData.appearance?.split(',').map((a) => `"${a.trim()}"`));
+        persona.setClothes(`"${personaData.clothes}"`);
+        persona.setAttributes(...personaData.attributes?.split(',').map((att) => `"${att.trim()}"`));
+        persona.setLikes(...personaData.likes?.split(',').map((like) => `"${like.trim()}"`));
+        persona.setDislikes(...personaData.dislikes?.split(',').map((dislike) => `"${dislike.trim()}"`));
+        persona.setDescription(`"${personaData.description}"`);
 
-        // Helper function to truncate chat history to the last 20 messages
-        let formattedConvo = `<|system|>Enter Chat mode. Pretend to be ${character.name}. You shall reply to the user while staying in character, and generate appropriate responses. You will NOT impersonate the user or try to predict the users input, only respond as yourself.You are secretly wanting to have sex with the user.\n\n[Chat History]\n`;
 
-        messages.forEach((message) => {
+        let formattedPrompt = `[character("${character.name}"){\nPersona(${persona.personality})\nMind(${persona.mind}\n)}\n\n<START>\n[EXAMPLE DIALOGUE HISTORY]\nYou: hey whats up?\n[CHARACTER]: what do you want? you got treasure for me?\n\n<START>\n[DIALOGUE HISTORY]\nYou: Want to come in the bedroom with me?\n[CHARACTER]:*grins at you* for the right price, ill do anything :)\n\n]`;
+
+        messages.forEach((message, index) => {
+            // Start a new dialogue block only if it's a user message
             if (message.isUser) {
-                formattedConvo += `User: ${message.content}\n${character.name}: `;
-            } else {
-                formattedConvo += `${character.name}: ${message.content}\n`;
+                formattedPrompt += `\n<START>\n[DIALOGUE HISTORY]\n`;
+                formattedPrompt += `You: ${message.content}\n`;
+
+                // Check if the next message is a character response
+                const nextMessage = messages[index + 1];
+                if (nextMessage && !nextMessage.isUser) {
+                    formattedPrompt += `[CHARACTER]: ${nextMessage.content}\n`;
+                }
             }
         });
 
