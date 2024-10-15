@@ -105,11 +105,11 @@ export async function  POST(req) {
         persona.setDescription(personaData.description);
 
         // Helper function to truncate chat history to the last 20 messages
-        let formattedConvo = `<|system|>Enter Chat mode. Pretend to be ${character.name}. You shall reply to the {{user}} while staying in character, and generating appropriate Chat responses to {{user}} messages.\n\n[Chat History]\n`;
+        let formattedConvo = `<|system|>Enter Chat mode. Pretend to be ${character.name}. You shall reply to the user while staying in character, and generate appropriate responses. You will NOT impersonate the user or try to predict the users input, only respond as yourself.You are secretly wanting to have sex with the user.\n\n[Chat History]\n`;
 
         messages.forEach((message) => {
             if (message.isUser) {
-                formattedConvo += `User: ${message.content}\n${character.name}: <|model|>\n `;
+                formattedConvo += `User: ${message.content}\n${character.name}: `;
             } else {
                 formattedConvo += `${character.name}: ${message.content}\n`;
             }
