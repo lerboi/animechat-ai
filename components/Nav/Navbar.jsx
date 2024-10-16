@@ -1,10 +1,10 @@
-"use client"
+"use client";
 import { useSession, signOut } from "next-auth/react";
 import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import { HiOutlineChatBubbleLeftRight, HiChatBubbleLeftRight } from "react-icons/hi2";
 import { HiOutlineCurrencyDollar, HiMiniCurrencyDollar } from "react-icons/hi2";
-import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2"; 
+import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2";
 import { SlLogout } from "react-icons/sl";
 import { FiAlignLeft } from "react-icons/fi";
 
@@ -22,30 +22,48 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
         };
 
         handleResize(); // Check on initial render
-        window.addEventListener('resize', handleResize);
+        window.addEventListener("resize", handleResize);
 
-        return () => window.removeEventListener('resize', handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const handleLogout = () => {
-        setShowLogoutConfirmation(true);
-    };
-
+    const handleLogout = () => setShowLogoutConfirmation(true);
     const confirmLogout = () => {
         signOut();
         setShowLogoutConfirmation(false);
     };
 
+    // Tooltip Component with Arrow
+    const Tooltip = ({ content, children }) => (
+        <div className='relative group'>
+            {children}
+            <span
+                className={`absolute left-14 top-1/2 -translate-y-1/2 bg-slate-200 text-black text-sm rounded-md px-2 py-1
+                    opacity-0 group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-50
+                    before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 
+                    before:border-8 before:border-transparent before:border-r-slate-200 ${(!isMobile && !isOpen)? 'block' : 'hidden' }`}
+            >
+                {content}
+            </span>
+        </div>
+    );
+
     const renderIcon = (link) => {
         switch (link) {
-            case 'Home':
-                return navItem === 'Home' ? <AiFillHome size={28} /> : <AiOutlineHome size={28} />;
-            case 'Chats':
-                return navItem === 'Chats' ? <HiChatBubbleLeftRight size={28} /> : <HiOutlineChatBubbleLeftRight size={28} />;
-            case 'Pricing':
-                return navItem === 'Pricing' ? <HiMiniCurrencyDollar size={28} /> : <HiOutlineCurrencyDollar size={28} />;
-            case 'Help':
-                return navItem === 'Help' ? <HiQuestionMarkCircle size={28} /> : <HiOutlineQuestionMarkCircle size={28} />;
+            case "Home":
+                return navItem === "Home" ? <AiFillHome size={28} /> : <AiOutlineHome size={28} />;
+            case "Chats":
+                return navItem === "Chats"
+                    ? <HiChatBubbleLeftRight size={28} />
+                    : <HiOutlineChatBubbleLeftRight size={28} />;
+            case "Pricing":
+                return navItem === "Pricing"
+                    ? <HiMiniCurrencyDollar size={28} />
+                    : <HiOutlineCurrencyDollar size={28} />;
+            case "Help":
+                return navItem === "Help"
+                    ? <HiQuestionMarkCircle size={28} />
+                    : <HiOutlineQuestionMarkCircle size={28} />;
             default:
                 return null;
         }
@@ -54,19 +72,24 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
     return (
         <>
             {/* Mobile menu icon */}
-            <button 
-                className={`fixed top-4 left-4 text-white z-50 md:hidden ${isOpen ? 'hidden' : ''}`}
+            <button
+                className={`fixed top-4 left-4 text-white z-50 md:hidden ${isOpen ? "hidden" : ""}`}
                 onClick={() => setIsOpen(true)}
             >
                 <FiAlignLeft size={24} />
             </button>
 
             {/* Navbar */}
-            <nav className={`fixed flex flex-col justify-between text-md top-0 left-0 h-full bg-[#1f1e1e]
-                ${isMobile ? (isOpen ? 'w-[60%] p-5' : 'w-0 p-0') : (isOpen ? 'w-64 p-5' : 'w-16 p-2')}
-                transition-all duration-300 z-40`}>
+            <nav
+                className={`fixed flex flex-col justify-between text-md top-0 left-0 h-full bg-[#1f1e1e]
+                    ${isMobile ? (isOpen ? "w-[60%] p-5" : "w-0 p-0") : isOpen ? "w-64 p-5" : "w-16 p-2"}
+                    transition-all duration-300 z-40`}
+            >
                 <div className={`${isOpen || !isMobile ? "" : "mt-10 m-1"}`}>
-                    <button className="text-[#e7e7e7] text-3xl p-2 hidden md:block" onClick={() => setIsOpen(!isOpen)}>
+                    <button
+                        className="text-[#e7e7e7] text-3xl p-2 hidden md:block"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
                         {isOpen ? (
                             <MdKeyboardDoubleArrowLeft className="absolute right-2 top-2" />
                         ) : (
@@ -79,27 +102,35 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                         </div>
                     )}
                     <div className="w-full mt-14">
-                        {navLinks && navLinks.map(link => (
-                            <div key={link} onClick={() => setNavItem(link)}
-                                className={`text-slate-200 items-center gap-3 hover:cursor-pointer mb-6 flex p-2 rounded-xl hover:bg-slate-400 hover:bg-opacity-30 hover:text-white 
-                                    ${navItem === link ? 'bg-slate-400 bg-opacity-30' : ''}
-                                    ${!isOpen && !isMobile ? 'justify-center' : ''}
-                                    ${isMobile && !isOpen ? 'hidden' : ''}`}>
-                                
-                                {renderIcon(link)}
-                                {(isOpen || isMobile) && <span className="ml-3">{link}</span>}
-                            </div>
-                        ))}
+                        {navLinks &&
+                            navLinks.map((link) => (
+                                <Tooltip key={link} content={link}>
+                                    <div
+                                        onClick={() => setNavItem(link)}
+                                        className={`text-slate-200 items-center gap-3 hover:cursor-pointer mb-6 flex p-2 rounded-xl 
+                                            hover:bg-slate-400 hover:bg-opacity-30 hover:text-white 
+                                            ${navItem === link ? "bg-slate-400 bg-opacity-30" : ""}
+                                            ${!isOpen && !isMobile ? "justify-center" : ""}
+                                            ${isMobile && !isOpen ? "hidden" : ""}`}
+                                    >
+                                        {renderIcon(link)}
+                                        {(isOpen || isMobile) && <span className="ml-3">{link}</span>}
+                                    </div>
+                                </Tooltip>
+                            ))}
                     </div>
                 </div>
 
                 <div className="relative items-end z-[999]">
                     {session ? (
-                        <div className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-auto mb-4 flex p-2 rounded-xl hover:bg-slate-400 hover:bg-opacity-30 hover:text-white
-                            ${!isOpen && !isMobile ? 'h-12 w-12 justify-center' : 'h-auto w-auto'}
-                            ${isMobile && !isOpen ? 'hidden' : ''}`} 
-                            onClick={handleLogout}>
-                            <SlLogout size={24} className={`${!isOpen && !isMobile ? 'm-auto' : ''}`} />
+                        <div
+                            className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-auto mb-4 flex p-2 rounded-xl 
+                                hover:bg-slate-400 hover:bg-opacity-30 hover:text-white
+                                ${!isOpen && !isMobile ? "h-12 w-12 justify-center" : "h-auto w-auto"}
+                                ${isMobile && !isOpen ? "hidden" : ""}`}
+                            onClick={handleLogout}
+                        >
+                            <SlLogout size={24} className={`${!isOpen && !isMobile ? "m-auto" : ""}`} />
                             {(isOpen || isMobile) && <span className="ml-3">Logout</span>}
                         </div>
                     ) : (
@@ -115,13 +146,13 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                         <h2 className="text-xl font-bold mb-4">Confirm Logout</h2>
                         <p className="mb-6">Are you sure you want to sign out?</p>
                         <div className="flex justify-end space-x-4">
-                            <button 
+                            <button
                                 className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                                 onClick={() => setShowLogoutConfirmation(false)}
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                                 onClick={confirmLogout}
                             >
@@ -134,11 +165,11 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
 
             {/* Overlay for mobile */}
             {isOpen && isMobile && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-30"
                     onClick={() => setIsOpen(false)}
                 ></div>
             )}
         </>
-    )
+    );
 }
