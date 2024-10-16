@@ -114,7 +114,7 @@ export default function LoginPopup({isOpen}) {
           <FaSignInAlt className="text-white" size={28} onClick={() => signOut()}/>
         </div>
         :
-        <div className="rounded-xl hover:bg-slate-400 flex justify-center hover:bg-opacity-30 hover:text-white p-4 m-1">
+        <div className="rounded-xl hover:bg-slate-400 flex justify-center hover:bg-opacity-30 hover:text-white p-2 m-1">
           <RiLoginBoxLine className="text-white" size={28} onClick={openPopup}/>
         </div>
       )}

@@ -14,9 +14,23 @@ export default function Home() {
   const [navItem, setNavItem] = useState("Home")
   const [isOpen, setIsOpen] = useState(false);
   const [characters, setCharacters] = useState([]);
+  const [isMobile, setIsMobile] = useState(true);
 
   const navLinks = ["Home", "Chats", "Pricing", "Help"]
-  const contentClasses = isOpen ? "ml-64 w-[calc(100%-64px)] transition-all" : "ml-16 w-[calc(100%-64px)] transition-all";
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is the 'md' breakpoint in Tailwind
+      if (window.innerWidth >= 768) {
+        setIsOpen(false); // Ensure navbar is collapsed by default on larger screens
+      }
+    };
+
+    handleResize(); // Check on initial render
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetchCharacters();
@@ -47,28 +61,30 @@ export default function Home() {
     );
   };
 
-  if (navItem === "Home") {
-    return (
-      <>
-        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
-        <div className={`${contentClasses}`}>
-          <div className="mb-10">
-            <PersonalCharacters isOpen={isOpen} />
-          </div>
-          <div>
-            <Explore />
-            {session ? <h1 className="text-white">Logged in</h1> : <h1 className="text-white">Not logged in</h1>}
-          </div>
-        </div>
-      </>
-    )
-  }
+  const contentClasses = `transition-all duration-300 ${
+    isMobile
+      ? 'ml-0 w-full'
+      : isOpen
+        ? 'md:ml-64 md:w-[calc(100%-256px)]'
+        : 'md:ml-16 md:w-[calc(100%-64px)]'
+  }`;
 
-  if (navItem === "Chats") {
-    return (
-      <>
-        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
-        <div className={`${contentClasses}`}>
+  return (
+    <>
+      <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
+      <div className={contentClasses}>
+        {navItem === "Home" && (
+          <>
+            <div className="mb-10">
+              <PersonalCharacters isOpen={isOpen} />
+            </div>
+            <div>
+              <Explore />
+              {session ? <h1 className="text-white">Logged in</h1> : <h1 className="text-white">Not logged in</h1>}
+            </div>
+          </>
+        )}
+        {navItem === "Chats" && (
           <div className="flex right-0">
             <ChatList 
               chats={characters} 
@@ -79,30 +95,10 @@ export default function Home() {
               onMessageSent={handleMessageSent}
             />
           </div>
-        </div>
-      </>
-    );
-  }
-
-  if (navItem === "Pricing") {
-    return (
-      <>
-        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
-        <div className={`${contentClasses}`}>
-          <PricingPage />
-        </div>
-      </>
-    );
-  }
-
-  if (navItem === "Help") {
-    return (
-      <>
-        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
-        <div className={`${contentClasses}`}>
-          <h1>Help</h1>
-        </div>
-      </>
-    );
-  }
+        )}
+        {navItem === "Pricing" && <PricingPage />}
+        {navItem === "Help" && <h1>Help</h1>}
+      </div>
+    </>
+  );
 }
