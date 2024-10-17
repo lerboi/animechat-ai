@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "imageTokens" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "textTokens" INTEGER NOT NULL DEFAULT 0;

@@ -7,6 +7,7 @@ import ChatWindow from "@/components/Chats/ChatWindow";
 import PricingPage from "@/components/Pricing/PricingPage";
 import PersonalCharacters from "@/components/Home/PersonalCharacters";
 import Explore from "@/components/Home/Explore";
+import DisclaimerPopup from "@/components/Home/DisclaimerPopup";
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -52,25 +53,25 @@ export default function Home() {
   }
 
   const handleMessageSent = (newMessage) => {
-    setCharacters(prevCharacters => 
-      prevCharacters?.map(char => 
-        char.id === selectedChat.id 
-          ? { ...char, lastMessage: newMessage.content } 
+    setCharacters(prevCharacters =>
+      prevCharacters?.map(char =>
+        char.id === selectedChat.id
+          ? { ...char, lastMessage: newMessage.content }
           : char
       )
     );
   };
 
-  const contentClasses = `transition-all duration-300 ${
-    isMobile
-      ? 'ml-0 w-full'
-      : isOpen
-        ? 'md:ml-64 md:w-[calc(100%-256px)]'
-        : 'md:ml-16 md:w-[calc(100%-64px)]'
-  }`;
+  const contentClasses = `transition-all duration-300 ${isMobile
+    ? 'ml-0 w-full'
+    : isOpen
+      ? 'md:ml-64 md:w-[calc(100%-256px)]'
+      : 'md:ml-16 md:w-[calc(100%-64px)]'
+    }`;
 
   return (
     <>
+      <DisclaimerPopup />
       <Navbar isOpen={isOpen} setIsOpen={setIsOpen} navItem={navItem} setNavItem={setNavItem} navLinks={navLinks} />
       <div className={contentClasses}>
         {navItem === "Home" && (
@@ -86,12 +87,12 @@ export default function Home() {
         )}
         {navItem === "Chats" && (
           <div className="flex right-0">
-            <ChatList 
-              chats={characters} 
-              onSelectChat={setSelectedChat} 
+            <ChatList
+              chats={characters}
+              onSelectChat={setSelectedChat}
             />
-            <ChatWindow 
-              selectedChat={selectedChat} 
+            <ChatWindow
+              selectedChat={selectedChat}
               onMessageSent={handleMessageSent}
             />
           </div>

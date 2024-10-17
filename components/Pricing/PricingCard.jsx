@@ -2,15 +2,14 @@ import React from 'react'
 import { Check } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
-export function PricingCard({ name, price, period, altPrice, benefits, isSelected, onSelect, buttonText = "Get Started" }) {
+export function PricingCard({ name, price, period, altPrice, benefits, isSelected, onSelect, buttonText = "Get Started", isCurrentPlan = false }) {
   return (
     <div
       className={`bg-gray-800 bg-opacity-50 rounded-lg p-8 transition-all duration-300 ease-in-out
-        ${
-          isSelected
-            ? 'ring-2 ring-white shadow-lg shadow-white/20 transform scale-105 z-10'
-            : 'hover:ring-1 hover:ring-white/50 hover:shadow-md hover:shadow-white/10 hover:transform hover:scale-102'
-        }`}
+        ${isCurrentPlan ? '' : 
+        isSelected
+        ? 'ring-2 ring-white shadow-lg shadow-white/20 transform scale-105 z-10'
+        : 'hover:ring-1 hover:ring-white/50 hover:shadow-md hover:shadow-white/10 hover:transform hover:scale-102'}`}
       onClick={onSelect}
     >
       <h2 className="text-2xl font-bold text-white mb-4">{name}</h2>
@@ -24,7 +23,10 @@ export function PricingCard({ name, price, period, altPrice, benefits, isSelecte
           </li>
         ))}
       </ul>
-      <Button className="w-full bg-white text-black hover:bg-gray-200">
+      <Button 
+        className={`w-full ${isCurrentPlan ? 'bg-gray-500 cursor-not-allowed' : 'bg-white text-black hover:bg-gray-200'}`}
+        disabled={isCurrentPlan}
+      >
         {buttonText}
       </Button>
     </div>

@@ -1,12 +1,13 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
-import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from "react-icons/md";
+import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft, MdGeneratingTokens} from "react-icons/md";
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import { HiOutlineChatBubbleLeftRight, HiChatBubbleLeftRight } from "react-icons/hi2";
 import { HiOutlineCurrencyDollar, HiMiniCurrencyDollar } from "react-icons/hi2";
 import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2";
 import { SlLogout } from "react-icons/sl";
 import { FiAlignLeft } from "react-icons/fi";
+import { RiImageCircleFill } from "react-icons/ri";
 
 import LoginPopup from "./LoginPopup";
 import { useState, useEffect } from "react";
@@ -15,6 +16,41 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
     const { data: session, status } = useSession();
     const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
     const [isMobile, setIsMobile] = useState(true);
+    const [tokens, setTokens] = useState({ textTokens: 0, imageTokens: 0 });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    //fetch tokens when session refresh
+    useEffect(() => {
+        if (session) {
+            async function fetchTokens(){
+                try {
+                    const response = await fetch('/api/fetchTokensAPI', {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setTokens(data);
+                    }
+                } catch (error) {
+                    console.error('Error fetching tokens:', error);
+                }
+            };
+            fetchTokens();
+        }
+    }, [session]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -82,7 +118,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
             {/* Navbar */}
             <nav
                 className={`fixed flex flex-col justify-between text-md top-0 left-0 h-full bg-[#1f1e1e]
-                    ${isMobile ? (isOpen ? "w-[60%] p-5" : "w-0 p-0") : isOpen ? "w-64 p-5" : "w-16 p-2"}
+                    ${isMobile ? (isOpen ? "w-[40%] p-5" : "w-0 p-0") : isOpen ? "w-64 p-5" : "w-16 p-2"}
                     transition-all duration-300 z-40`}
             >
                 <div className={`${isOpen || !isMobile ? "" : "mt-10 m-1"}`}>
@@ -99,6 +135,25 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                     {isOpen && (
                         <div className="mb-4">
                             <h1 className="text-2xl py-4 text-white font-bold">anione.ai</h1>
+                            {session && (
+                                <div className="text-white mt-2 mb-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center">
+                                            <MdGeneratingTokens className="mr-2" />
+                                            <span>Text Tokens:</span>
+                                        </div>
+                                        <span>{tokens.textTokens}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <RiImageCircleFill className="mr-2" />
+                                            <span>Image Tokens:</span>
+                                        </div>
+                                        <span>{tokens.imageTokens}</span>
+                                    </div>
+                                </div>
+                            )}
+                            <hr className="border-t border-gray-600 my-4" />
                         </div>
                     )}
                     <div className="w-full mt-14">
