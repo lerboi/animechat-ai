@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { PricingCard } from './PricingCard'
-import { Button } from "@/components/ui/button"
 import { useSession } from 'next-auth/react'
+import { loadStripe } from '@stripe/stripe-js'
+import { HiOutlineCurrencyDollar, HiMiniCurrencyDollar } from "react-icons/hi2";
+
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 const tiers = [
   {
@@ -16,6 +20,7 @@ const tiers = [
       'High-Quality AI Response',
       'No ads',
     ],
+    stripeId: 'free_plan',
   },
   {
     name: 'Plus',
@@ -29,6 +34,7 @@ const tiers = [
       'Access to pictures',
     ],
     isPopular: true,
+    stripeId: 'price_1QAvkYCoZlAUNSEljLvWslqi',
   },
   {
     name: 'Premium',
@@ -41,6 +47,7 @@ const tiers = [
       'Unlimited chats',
       'Create your own Characters',
     ],
+    stripeId: 'price_1QAvl3CoZlAUNSElmAezTZOp',
   },
 ]
 
@@ -51,10 +58,11 @@ const tokenBundle = {
     '300 Message Tokens',
     '10 Picture Tokens',
   ],
+  stripeId: 'token_bundle',
 }
 
-export default function PricingPage() {
-  const [selectedTier, setSelectedTier] = React.useState('Premium')
+export default function StorePage() {
+  const [selectedTier, setSelectedTier] = useState('Premium')
   const [userTier, setUserTier] = useState(null)
   const { data: session } = useSession()
 
@@ -78,13 +86,44 @@ export default function PricingPage() {
       }
     }
     fetchUserTier()
-    console.log("Current Tier: " + JSON.stringify(userTier))
   }, [session])
+
+  const handleSubscribe = async (stripeId) => {
+    if (!session) {
+      // Redirect to login or show a message
+      alert('Please log in to subscribe')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId: stripeId,
+        }),
+      })
+
+      const { sessionId } = await response.json()
+      const stripe = await stripePromise
+      const { error } = await stripe.redirectToCheckout({ sessionId })
+
+      if (error) {
+        console.error('Error:', error)
+        alert('An error occurred. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('An error occurred. Please try again.')
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="max-w-7xl w-full">
-        <h1 className="text-4xl font-bold text-white text-center mb-12">Subscriptions</h1>
+        <h1 className="text-4xl font-bold text-white text-center mb-12 mt-12">Subscriptions</h1>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-16">
           {tiers.map((tier) => (
             <div key={tier.name} className="relative">
@@ -103,6 +142,7 @@ export default function PricingPage() {
                 onSelect={() => setSelectedTier(tier.name)}
                 buttonText={userTier === tier.name.toUpperCase() ? "Current plan" : "Get Started"}
                 isCurrentPlan={userTier === tier.name.toUpperCase()}
+                onSubscribe={() => handleSubscribe(tier.stripeId)}
               />
             </div>
           ))}
@@ -117,6 +157,7 @@ export default function PricingPage() {
             isSelected={false}
             onSelect={() => {}}
             buttonText="Buy Now"
+            onSubscribe={() => handleSubscribe(tokenBundle.stripeId)}
           />
         </div>
       </div>

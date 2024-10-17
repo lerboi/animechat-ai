@@ -3,5 +3,10 @@ blurry eyes, deformed eyes, asymmetrical eyes, extra eyes, fused eyes, discolore
 
 TO DO:
 - In Explore.jsx, when click on charactercard, expand and show more details.
-- add Messagetoken and PictureToken icons and functionality
-- Add disclaimer popup when first join website, all characters are above 18 etc
+- Create a billing management portal where users can manage their subscriptions (upgrade, cancel, view invoices).
+- Setup Token Store
+
+
+Help section:
+Text Tokens - Every 1 Message you send is equal to 1 Text Token
+Image Tokens - Every 1 Picture the AI Character sends is equal to 1 Image Token

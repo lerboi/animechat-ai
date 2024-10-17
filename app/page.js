@@ -4,10 +4,10 @@ import { useSession } from "next-auth/react";
 import Navbar from "@/components/Nav/Navbar";
 import ChatList from "@/components/Chats/ChatList";
 import ChatWindow from "@/components/Chats/ChatWindow";
-import PricingPage from "@/components/Pricing/PricingPage";
 import PersonalCharacters from "@/components/Home/PersonalCharacters";
 import Explore from "@/components/Home/Explore";
 import DisclaimerPopup from "@/components/Home/DisclaimerPopup";
+import StorePage from "@/components/Store/StorePage";
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -17,7 +17,7 @@ export default function Home() {
   const [characters, setCharacters] = useState([]);
   const [isMobile, setIsMobile] = useState(true);
 
-  const navLinks = ["Home", "Chats", "Pricing", "Help"]
+  const navLinks = ["Home", "Chats", "Store", "Help"]
 
   useEffect(() => {
     const handleResize = () => {
@@ -97,7 +97,7 @@ export default function Home() {
             />
           </div>
         )}
-        {navItem === "Pricing" && <PricingPage />}
+        {navItem === "Store" && <StorePage />}
         {navItem === "Help" && <h1>Help</h1>}
       </div>
     </>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Check } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
-export function PricingCard({ name, price, period, altPrice, benefits, isSelected, onSelect, buttonText = "Get Started", isCurrentPlan = false }) {
+export function PricingCard({ name, price, period, altPrice, benefits, isSelected, onSelect, buttonText = "Get Started", isCurrentPlan = false, onSubscribe }) {
   return (
     <div
       className={`bg-gray-800 bg-opacity-50 rounded-lg p-8 transition-all duration-300 ease-in-out
@@ -26,8 +26,9 @@ export function PricingCard({ name, price, period, altPrice, benefits, isSelecte
       <Button 
         className={`w-full ${isCurrentPlan ? 'bg-gray-500 cursor-not-allowed' : 'bg-white text-black hover:bg-gray-200'}`}
         disabled={isCurrentPlan}
+        onClick={isCurrentPlan ? null : onSubscribe}
       >
-        {buttonText}
+        {name === "Free" ? "Select" : buttonText}
       </Button>
     </div>
   )

@@ -3,11 +3,11 @@ import { useSession, signOut } from "next-auth/react";
 import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft, MdGeneratingTokens} from "react-icons/md";
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import { HiOutlineChatBubbleLeftRight, HiChatBubbleLeftRight } from "react-icons/hi2";
-import { HiOutlineCurrencyDollar, HiMiniCurrencyDollar } from "react-icons/hi2";
 import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2";
 import { SlLogout } from "react-icons/sl";
 import { FiAlignLeft } from "react-icons/fi";
 import { RiImageCircleFill } from "react-icons/ri";
+import { PiStorefront, PiStorefrontFill } from "react-icons/pi";
 
 import LoginPopup from "./LoginPopup";
 import { useState, useEffect } from "react";
@@ -53,7 +53,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
     }, [session]);
 
     useEffect(() => {
-        const handleResize = () => {
+        function handleResize() {
             setIsMobile(window.innerWidth < 768); // 768px is the 'md' breakpoint in Tailwind
         };
 
@@ -92,10 +92,10 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                 return navItem === "Chats"
                     ? <HiChatBubbleLeftRight size={28} />
                     : <HiOutlineChatBubbleLeftRight size={28} />;
-            case "Pricing":
-                return navItem === "Pricing"
-                    ? <HiMiniCurrencyDollar size={28} />
-                    : <HiOutlineCurrencyDollar size={28} />;
+            case "Store":
+                return navItem === "Store"
+                    ? <PiStorefrontFill size={28} />
+                    : <PiStorefront size={28} />;
             case "Help":
                 return navItem === "Help"
                     ? <HiQuestionMarkCircle size={28} />
@@ -156,7 +156,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                             <hr className="border-t border-gray-600 my-4" />
                         </div>
                     )}
-                    <div className="w-full mt-14">
+                    <div className={`w-full ${isOpen ? 'mt-6' : 'mt-14' }`}>
                         {navLinks &&
                             navLinks.map((link) => (
                                 <Tooltip key={link} content={link}>
