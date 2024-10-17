@@ -20,11 +20,11 @@ model User {
   password      String?          @unique
   accounts      Account[]
   sessions      Session[]
+  billing       Billing[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
   tier          Tier @default(FREE)
-
   textTokens    Int @default(50)  
   imageTokens   Int @default(3)  
 
@@ -39,6 +39,34 @@ enum Tier {
   PLUS
   PREMIUM
 }
+
+model Billing {
+  id                Int       @id @default(autoincrement()) 
+  userId            String    
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subscriptionId    String?   
+  paymentMethod     String     
+  cardLastFour      String?    
+  cardBrand         String?    
+  billingAddress    String?    
+  isActive          Boolean    @default(true) // Indicates if the billing info is active
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt 
+
+  paymentHistory    Payment[] 
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement()) 
+  billingId   Int      
+  billing     Billing   @relation(fields: [billingId], references: [id], onDelete: Cascade)
+
+  amount      Float     
+  status      String    
+  createdAt   DateTime  @default(now()) 
+}
+
 
 model Character {
   id           Int        @id @default(autoincrement())

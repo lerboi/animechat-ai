@@ -3,10 +3,20 @@ blurry eyes, deformed eyes, asymmetrical eyes, extra eyes, fused eyes, discolore
 
 TO DO:
 - In Explore.jsx, when click on charactercard, expand and show more details.
+- Change logout button to Profile icon and make profile page.
+- Setup Billing and Payment prisma schema functionality
 - Create a billing management portal where users can manage their subscriptions (upgrade, cancel, view invoices).
 - Setup Token Store
+- Make Create Character functionality
+- Add community section
+
+- Setup all other characters(first figure out prompt)
 
 
 Help section:
 Text Tokens - Every 1 Message you send is equal to 1 Text Token
 Image Tokens - Every 1 Picture the AI Character sends is equal to 1 Image Token
+
+
+AI PROMPTS - 
+Create a billing management portal
