@@ -20,6 +20,7 @@ class Persona {
         this.likes = [];
         this.dislikes = [];
         this.description = "";
+        this.scenario = "";
     }
 
     setAge(age) { this.age = age; }
@@ -38,10 +39,11 @@ class Persona {
     setLikes(...likes) { this.likes = likes; }
     setDislikes(...dislikes) { this.dislikes = dislikes; }
     setDescription(description) { this.description = description; }
+    setScenario(scenario) { this.scenario = scenario }
 
     formatPersona() {
         return (
-            `Character Persona: Name: "${this.name}", Age: "${this.age}", Gender: "${this.gender}", Nationality: "${this.nationality}", Sexuality: "${this.sexuality}", Height: "${this.height}", Species: "${this.species}", Occupation: "${this.occupation}", Affiliation: "${this.affiliation}", Personality: "${this.personality.join(", ")}", Appearance: "${this.appearance.join(", ")}", Attributes: "${this.attributes.join(", ")}", Likes: "${this.likes.join(", ")}", Dislikes: "${this.dislikes.join(", ")}", Description: "${this.description}"`
+            `Character Persona: Name: ${this.name}, Age: ${this.age}, Gender: ${this.gender}, Nationality: ${this.nationality}, Sexuality: ${this.sexuality}, Height: ${this.height}, Species: ${this.species}, Occupation: ${this.occupation}, Affiliation: ${this.affiliation}, Personality: ${this.personality.join(", ")}, Appearance: ${this.appearance.join(", ")}, Attributes: ${this.attributes.join(", ")}, Likes: ${this.likes.join(", ")}, Dislikes: ${this.dislikes.join(", ")}, Description: ${this.description}`
         );
     }
 }
@@ -109,7 +111,7 @@ export async function POST(req) {
         persona.setLikes(...personaData.likes?.split(',').map((like) => `"${like.trim()}"`));
         persona.setDislikes(...personaData.dislikes?.split(',').map((dislike) => `"${dislike.trim()}"`));
         persona.setDescription(`"${personaData.description}"`);
-
+        persona.setScenario(`${personaData.scenario}`)
 
         let formattedPrompt = `[character("${character.name}")]
         Enter RP mode. Pretend to be ${character.name}. ${character.name} is on a ship with User. 
