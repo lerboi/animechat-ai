@@ -1,23 +1,22 @@
 Negative prompts
 blurry eyes, deformed eyes, asymmetrical eyes, extra eyes, fused eyes, discolored eyes, cross-eyed, lazy eye, low-resolution eyes, empty eyes, dull pupils, unnatural reflections, distorted face, missing iris, extra hands, extra fingers, deformed hands, incorrect anatomy, mismatched hand size, fused fingers, mutated limbs, twisted hand poses, cartoonish hands, glitchy anatomy, overexposed, pixelated fingers, unnatural gestures
 
-TO DO:
-- In Explore.jsx, when click on charactercard, expand and show more details.
-- Change logout button to Profile icon and make profile page.
-- Setup Billing and Payment prisma schema functionality
-- Create a billing management portal where users can manage their subscriptions (upgrade, cancel, view invoices).
-- Setup Token Store
-- Make Create Character functionality
-- Add community section
-- Add the initial AI convo 
+Example Prompt:
+Default: "1girl, cagliostro, granblue fantasy, violet eyes, standing, hand on own chin, looking at object, smile, closed mouth, table, beaker, glass tube, experiment apparatus, dark room, laboratory, upper body"
 
-- Setup all other characters(first figure out prompt)
+PROMPT TO CREATE PICTURE AI FUNCTION
+What i need?
+schema.prisma, ChatWindow.jsx, getAiImageResponseAPI.js
 
+Your task is to write code in the required files to add functionality in my website where Users can click a Image icon on the right of the Characters outputted message. Clicking on the icon will run a function 
+getAiImageResponse() that will fetch the getAiImageResponseAPI's output. Below are the steps to achieve this
 
-Help section:
-Text Tokens - Every 1 Message you send is equal to 1 Text Token
-Image Tokens - Every 1 Picture the AI Character sends is equal to 1 Image Token
-
-
-AI PROMPTS - 
+- In the ChatWindow.jsx, in the messages.map function where it maps and displays the users and characters messages, add the RiImageCircleFill react icon positioned on the top right relative to the message. 
+- Clicked on the RiImageCircleFill icon will run the getImageResponse() function, which will run a fetch() with a Get method and pass the below as the body
+    body: JSON.stringify({
+            messages: messages,
+            characterId: selectedChat.characterId,
+            userId: session.user.id
+            })
+- In the getAiImageResponseAPI
 

@@ -4,6 +4,7 @@ import { Send, Paperclip, Mic, ArrowLeft } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
+import { RiImageCircleFill } from "react-icons/ri";
 
 export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, isMobile }) {
   const [messages, setMessages] = useState([])
@@ -231,6 +232,8 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
 
   return (
     <div className={`h-screen flex flex-col bg-[#17212b] bg-opacity-40 text-[#e7e7e7] ${isMobile ? 'w-full' : 'w-3/4'}`}>
+
+      {/* Character Profile Section */}
       <div className="p-4 border-b border-gray-700 flex items-center justify-between">
         {isMobile && (
           <button onClick={onBackClick} className="mr-4">
@@ -266,6 +269,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
         </div>
       </div>
 
+      {/* Chat section */}
       <div 
         className="flex-1 overflow-y-auto h-full p-4 relative bg-cover bg-center bg-no-repeat scrollbar-hide"
         style={{
@@ -298,6 +302,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
         </div>
       </div>
 
+      {/* User Input Section */}
       <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700 flex items-center">
         <button type="button" className="text-gray-400 hover:text-white mr-2">
           <Paperclip size={20} />
@@ -317,6 +322,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
         </button>
       </form>
 
+      {/* Other Popups */}
       {showResetConfirmation && (
         <div className="fixed z-[20] inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-[#242f3d] p-6 rounded-lg">
