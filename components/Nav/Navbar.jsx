@@ -4,10 +4,11 @@ import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft, MdGeneratingToke
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import { HiOutlineChatBubbleLeftRight, HiChatBubbleLeftRight } from "react-icons/hi2";
 import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2";
-import { SlLogout } from "react-icons/sl";
 import { FiAlignLeft } from "react-icons/fi";
 import { RiImageCircleFill } from "react-icons/ri";
 import { PiStorefront, PiStorefrontFill } from "react-icons/pi";
+import { CgProfile } from "react-icons/cg";
+import Image from 'next/image';
 
 import LoginPopup from "./LoginPopup";
 import { useState, useEffect } from "react";
@@ -29,7 +30,6 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    //fetch tokens when session refresh
     useEffect(() => {
         if (session) {
             async function fetchTokens(){
@@ -52,24 +52,12 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
         }
     }, [session]);
 
-    useEffect(() => {
-        function handleResize() {
-            setIsMobile(window.innerWidth < 768); // 768px is the 'md' breakpoint in Tailwind
-        };
-
-        handleResize(); // Check on initial render
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
     const handleLogout = () => setShowLogoutConfirmation(true);
     const confirmLogout = () => {
         signOut();
         setShowLogoutConfirmation(false);
     };
 
-    // Tooltip Component with Arrow
     const Tooltip = ({ content, children }) => (
         <div className='relative group'>
             {children}
@@ -107,7 +95,6 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
 
     return (
         <>
-            {/* Mobile menu icon */}
             <button
                 className={`fixed top-4 left-4 text-white z-50 md:hidden ${isOpen ? "hidden" : ""}`}
                 onClick={() => setIsOpen(true)}
@@ -115,7 +102,6 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                 <FiAlignLeft size={24} />
             </button>
 
-            {/* Navbar */}
             <nav
                 className={`fixed flex flex-col justify-between text-md top-0 left-0 h-full bg-[#1f1e1e]
                     ${isMobile ? (isOpen ? "w-[40%] p-5" : "w-0 p-0") : isOpen ? "w-64 p-5" : "w-16 p-2"}
@@ -182,11 +168,22 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                             className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-auto mb-4 flex p-2 rounded-xl 
                                 hover:bg-slate-400 hover:bg-opacity-30 hover:text-white
                                 ${!isOpen && !isMobile ? "h-12 w-12 justify-center" : "h-auto w-auto"}
-                                ${isMobile && !isOpen ? "hidden" : ""}`}
-                            onClick={handleLogout}
+                                ${isMobile && !isOpen ? "hidden" : ""}
+                                ${navItem === "Profile" ? "bg-slate-200 bg-opacity-20" : "" }`}
+                            onClick={() => setNavItem("Profile")}
                         >
-                            <SlLogout size={24} className={`${!isOpen && !isMobile ? "m-auto" : ""}`} />
-                            {(isOpen || isMobile) && <span className="ml-3">Logout</span>}
+                            {session.user.image ? (
+                                <Image
+                                    src={session.user.image}
+                                    alt="Profile"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full"
+                                />
+                            ) : (
+                                <CgProfile size={32} />
+                            )}
+                            {(isOpen || isMobile) && <span className="ml-3">Profile</span>}
                         </div>
                     ) : (
                         <LoginPopup isOpen={isOpen} isMobile={isMobile} />
@@ -194,7 +191,6 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                 </div>
             </nav>
 
-            {/* Logout confirmation modal */}
             {showLogoutConfirmation && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
                     <div className="bg-white rounded-lg p-6 max-w-sm w-full">
@@ -218,7 +214,6 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                 </div>
             )}
 
-            {/* Overlay for mobile */}
             {isOpen && isMobile && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-30"

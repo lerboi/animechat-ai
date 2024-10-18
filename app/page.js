@@ -8,6 +8,7 @@ import PersonalCharacters from "@/components/Home/PersonalCharacters";
 import Explore from "@/components/Home/Explore";
 import DisclaimerPopup from "@/components/Home/DisclaimerPopup";
 import StorePage from "@/components/Store/StorePage";
+import Profile from "@/components/Profile/Profile";
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -99,6 +100,7 @@ export default function Home() {
         )}
         {navItem === "Store" && <StorePage />}
         {navItem === "Help" && <h1>Help</h1>}
+        {navItem === "Profile" && <Profile />}
       </div>
     </>
   );
