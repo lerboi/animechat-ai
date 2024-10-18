@@ -8,15 +8,45 @@ PROMPT TO CREATE PICTURE AI FUNCTION
 What i need?
 schema.prisma, ChatWindow.jsx, getAiImageResponseAPI.js
 
-Your task is to write code in the required files to add functionality in my website where Users can click a Image icon on the right of the Characters outputted message. Clicking on the icon will run a function 
-getAiImageResponse() that will fetch the getAiImageResponseAPI's output. Below are the steps to achieve this
+{insert schema.prisma}
 
-- In the ChatWindow.jsx, in the messages.map function where it maps and displays the users and characters messages, add the RiImageCircleFill react icon positioned on the top right relative to the message. 
-- Clicked on the RiImageCircleFill icon will run the getImageResponse() function, which will run a fetch() with a Get method and pass the below as the body
-    body: JSON.stringify({
-            messages: messages,
-            characterId: selectedChat.characterId,
-            userId: session.user.id
-            })
-- In the getAiImageResponseAPI
+The above is my schema.prisma for reference
+
+{insert ChatWindow.jsx}
+
+The above is my ChatWindow.jsx
+
+{insert getAiImageResponseAPI.js}
+
+The above is my getAiImageResponseAPI.js
+
+Task:
+Add functionality to your website where users can click on an image icon beside the AI character’s message to fetch an AI-generated image using the getAiImageResponse() function.
+
+Implementation Plan:
+
+In ChatWindow.jsx:
+- In the messages.map function, where the user and character messages are being rendered:
+- Add the RiImageCircleFill react icon.
+- Position it on the top-right corner relative to each character’s message.
+
+On Icon Click:
+- Trigger the getImageResponse() function.
+- Inside this function, make a fetch() call with a GET method.
+- Include the following data in the request body:
+body: JSON.stringify({
+    messages: messages,
+    characterId: selectedChat.characterId,
+    userId: session.user.id
+})
+
+In getAiImageResponseAPI:
+- Implement an API route that connects to the Mistral Client.
+- Retrieve the chat history between the user and character from the respective database entry.
+- From the retrieved chat history, deduce the current action being performed by the character.
+- Format the chat history into a prompt like the example below:
+
+Example Prompt:
+1girl, cagliostro (example character name), granblue fantasy (example anime name), violet eyes (attire), standing, hand on own chin, looking at object, smile, closed mouth, table, beaker, glass tube, experiment apparatus, dark room, laboratory, upper body
+
 

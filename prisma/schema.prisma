@@ -76,7 +76,7 @@ model Character {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   picture      String?
-
+  animename    String?
   personaData   Persona?   @relation(fields: [personaId], references: [id])
   personaId     Int?       @unique // Foreign key reference to Persona
   userCharacters UserCharacter[]
