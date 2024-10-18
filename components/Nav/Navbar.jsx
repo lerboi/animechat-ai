@@ -7,8 +7,8 @@ import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/h
 import { FiAlignLeft } from "react-icons/fi";
 import { RiImageCircleFill } from "react-icons/ri";
 import { PiStorefront, PiStorefrontFill } from "react-icons/pi";
-import { CgProfile } from "react-icons/cg";
 import Image from 'next/image';
+import { PiUserCircleLight, PiUserCircleDuotone } from "react-icons/pi";
 
 import LoginPopup from "./LoginPopup";
 import { useState, useEffect } from "react";
@@ -181,7 +181,9 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                                     className="rounded-full"
                                 />
                             ) : (
-                                <CgProfile size={32} />
+                                <div>
+                                    {(navItem === "Profile") ? <PiUserCircleDuotone size={32}/> : <PiUserCircleLight size={32} /> }
+                                </div>
                             )}
                             {(isOpen || isMobile) && <span className="ml-3">Profile</span>}
                         </div>

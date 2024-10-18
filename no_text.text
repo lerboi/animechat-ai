@@ -9,6 +9,7 @@ TO DO:
 - Setup Token Store
 - Make Create Character functionality
 - Add community section
+- Add the initial AI convo 
 
 - Setup all other characters(first figure out prompt)
 
@@ -20,39 +21,3 @@ Image Tokens - Every 1 Picture the AI Character sends is equal to 1 Image Token
 
 AI PROMPTS - 
 
-FOR PROFILE PAGE / BILLINGS AND PAYMENTS
-
-{insert Navbar.jsx}
-
-Above is my Navbar.jsx
-
-{insert page.js}
-
-Above is my page.js
-
-{insert schema.prisma}
-
-Above is my schema.prisma for reference
-
-I want to create a Profile page where users can view their profile information, as well as billing and payment info in my Next.js 14 App Router project (using only JavaScript, no TypeScript).
-
-Navbar.jsx:
-
-Replace the SlLogout icon with the user's avatar/profile picture displayed in a circle.
-If there’s no avatar/profile picture, import { CgProfile } from react-icons/cg and display that icon instead.
-Make the icon/avatar clickable to open the Profile page.
-page.js:
-
-Modify the code so that if navItem === "Profile", it returns the Profile.jsx component.
-Profile.jsx:
-
-Create this component to display information from the User model in schema.prisma.
-UI Design:
-
-Add a vertical line on the left to separate user profile info from a list of settings.
-Include two items in the settings list: "Profile", "Payments", and "Billing".
-Payments.jsx and Billings.jsx:
-
-Create these components as placeholders.
-
-Note that i am using NextJS 14 with the App router and usingl only Javascript, no Typescript

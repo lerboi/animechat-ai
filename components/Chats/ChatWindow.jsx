@@ -1,17 +1,12 @@
 "use client"
 import { useState, useRef, useEffect } from 'react'
-import { Send, Paperclip, Mic } from 'lucide-react'
+import { Send, Paperclip, Mic, ArrowLeft } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 
-const mockMessages = [
-  { id: 1, sender: 'Alice', content: 'hey', timestamp: '9:30 PM', isUser: false },
-  { id: 2, sender: 'You', content: 'what are you doing?', timestamp: '9:31 PM', isUser: true },
-]
-
-export default function ChatWindow({ selectedChat, onMessageSent }) {
-  const [messages, setMessages] = useState(mockMessages)
+export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, isMobile }) {
+  const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const messagesEndRef = useRef(null)
   const { data: session } = useSession()
@@ -37,12 +32,12 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
           }
           const data = await response.json();
           const formattedMessages = data.chatHistory.map((message, index) => {
-            const [sender, ...contentParts] = message.split(':', 2); // Split at the first colon only
+            const [sender, ...contentParts] = message.split(':', 2);
             const content = contentParts.join(':').trim();
             return {
               id: index,
               sender: sender === 'User' ? 'You' : sender,
-              content: content.replace(/^"|"$/g, ''), // Remove surrounding quotes
+              content: content.replace(/^"|"$/g, ''),
               timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               isUser: sender === 'User'
             };
@@ -65,12 +60,12 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (new Date() - lastActive > 60000) { // 1 minute
+      if (new Date() - lastActive > 60000) {
         setStatus(`last seen at ${lastActive.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
       } else {
         setStatus('online');
       }
-    }, 10000); // Check every 10 seconds
+    }, 10000);
 
     return () => clearInterval(timer);
   }, [lastActive]);
@@ -86,29 +81,20 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
         isUser: true
       }
       
-      // Add user message to the state
       setMessages(prevMessages => [...prevMessages, userMessage])
       setNewMessage('')
       setLastActive(new Date());
       setStatus('online');
 
-      // Update chat history with user message
       await addChatHistory(userMessage)
-
-      // Notify parent component about the new message
       onMessageSent(userMessage);
-
-      // Show typing indicator
       setIsTyping(true);
 
-      // Get AI response
       const aiResponse = await getAiResponse([...messages, userMessage])
       
       if (aiResponse) {
-        // Remove typing indicator
         setIsTyping(false);
 
-        // Add AI message to the state
         const aiMessage = {
           id: messages.length + 2,
           sender: selectedChat.character.name,
@@ -120,10 +106,7 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
         setMessages(prevMessages => [...prevMessages, aiMessage])
         setLastActive(new Date());
 
-        // Update chat history with AI message
         await addChatHistory(aiMessage)
-
-        // Notify parent component about the new message
         onMessageSent(aiMessage);
       }
     }
@@ -200,11 +183,9 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
         throw new Error("Failed to reset chat");
       }
 
-      // Clear the messages in the UI
       setMessages([]);
       setShowResetConfirmation(false);
 
-      // Delete the genkey
       await deleteGenkey();
     } catch (error) {
       console.error("Error resetting chat:", error);
@@ -232,18 +213,15 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
     }
   }
 
-  function formatMessageContent(content) {
-    // Use a regular expression to find text wrapped in *
+  function  formatMessageContent(content) {
     const formattedContent = content.split('*').map((part, index) => {
-      // If the index is odd, it means it's wrapped in * and should be italicized
       if (index % 2 === 1) {
         return <span key={index} className="italic text-slate-400">{part}</span>;
       }
-      // Return the plain text part
       return part;
     });
   
-    return <>{formattedContent}</>; // Return as a fragment
+    return <>{formattedContent}</>;
   }
 
   if (!selectedChat) 
@@ -252,11 +230,13 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
   )
 
   return (
-    <>
-    <div className="w-full md:w-3/4 h-screen flex flex-col bg-[#17212b] bg-opacity-40 text-[#e7e7e7]">
-
-      {/* Name Section */}
+    <div className={`h-screen flex flex-col bg-[#17212b] bg-opacity-40 text-[#e7e7e7] ${isMobile ? 'w-full' : 'w-3/4'}`}>
       <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+        {isMobile && (
+          <button onClick={onBackClick} className="mr-4">
+            <ArrowLeft size={24} />
+          </button>
+        )}
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-full bg-[#3a3a3a] flex items-center justify-center text-lg font-semibold mr-3">
             {<img className="w-10 h-10 rounded-full object-cover" src={selectedChat.character.picture}/> || selectedChat.name[0]}
@@ -286,7 +266,6 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
         </div>
       </div>
 
-      {/* Chat Section */}
       <div 
         className="flex-1 overflow-y-auto h-full p-4 relative bg-cover bg-center bg-no-repeat scrollbar-hide"
         style={{
@@ -319,7 +298,6 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
         </div>
       </div>
 
-      {/* Send User Input Section */}
       <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700 flex items-center">
         <button type="button" className="text-gray-400 hover:text-white mr-2">
           <Paperclip size={20} />
@@ -339,30 +317,27 @@ export default function ChatWindow({ selectedChat, onMessageSent }) {
         </button>
       </form>
 
-    </div>
-
-    {/* Reset Confirmation Popup */}
-    {showResetConfirmation && (
-      <div className="fixed z-[20] inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-[#242f3d] p-6 rounded-lg">
-          <p className="text-white mb-4">Are you sure you want to Reset the chat? This action cannot be undone.</p>
-          <div className="flex justify-end">
-            <button
-              onClick={() => {resetChat(); setShowPopup(false)}}
-              className="bg-red-500 text-white px-4 py-2 rounded mr-2 hover:bg-red-600"
-            >
-              Yes, I want to delete this chat
-            </button>
-            <button
-              onClick={() => {setShowResetConfirmation(false); setShowPopup(false);}}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
+      {showResetConfirmation && (
+        <div className="fixed z-[20] inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-[#242f3d] p-6 rounded-lg">
+            <p className="text-white mb-4">Are you sure you want to Reset the chat? This action cannot be undone.</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => {resetChat(); setShowPopup(false)}}
+                className="bg-red-500 text-white px-4 py-2 rounded mr-2 hover:bg-red-600"
+              >
+                Yes, I want to delete this chat
+              </button>
+              <button
+                onClick={() => {setShowResetConfirmation(false); setShowPopup(false);}}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
-    </>
+      )}
+    </div>
   )
 }

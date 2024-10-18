@@ -20,11 +20,11 @@ export default function Profile() {
       <div className="w-1/4 bg-transparent p-6 border-r border-gray-600 relative">
         <h2 className="text-2xl font-bold mb-6 text-white">Settings</h2>
         <ul>
-          {['Profile', 'Payments', 'Billing'].map((tab) => (
+          {['Profile', 'Billing'].map((tab) => (
             <li
               key={tab}
               className={`cursor-pointer py-2 px-4 mb-2 rounded ${
-                activeTab === tab ? 'bg-white text-black' : 'hover:bg-white hover:bg-opacity-20'
+                activeTab === tab ? 'bg-white bg-opacity-90 text-black' : 'hover:bg-white hover:bg-opacity-20'
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -56,7 +56,6 @@ export default function Profile() {
             </div>
           </div>
         )}
-        {activeTab === 'Payments' && <Payments />}
         {activeTab === 'Billing' && <Billing />}
       </div>
     </div>

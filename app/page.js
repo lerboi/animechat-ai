@@ -17,18 +17,19 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [characters, setCharacters] = useState([]);
   const [isMobile, setIsMobile] = useState(true);
+  const [showChatWindow, setShowChatWindow] = useState(false);
 
   const navLinks = ["Home", "Chats", "Store", "Help"]
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768); // 768px is the 'md' breakpoint in Tailwind
+      setIsMobile(window.innerWidth < 768);
       if (window.innerWidth >= 768) {
-        setIsOpen(false); // Ensure navbar is collapsed by default on larger screens
+        setIsOpen(false);
       }
     };
 
-    handleResize(); // Check on initial render
+    handleResize();
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
@@ -63,11 +64,22 @@ export default function Home() {
     );
   };
 
+  const handleSelectChat = (chat) => {
+    setSelectedChat(chat);
+    if (isMobile) {
+      setShowChatWindow(true);
+    }
+  };
+
+  const handleBackClick = () => {
+    setShowChatWindow(false);
+  };
+
   const contentClasses = `transition-all duration-300 ${isMobile
-    ? 'ml-0 w-full'
-    : isOpen
-      ? 'md:ml-64 md:w-[calc(100%-256px)]'
-      : 'md:ml-16 md:w-[calc(100%-64px)]'
+      ? 'ml-0 w-full'
+      : isOpen
+        ? 'md:ml-64 md:w-[calc(100%-256px)]'
+        : 'md:ml-16 md:w-[calc(100%-64px)]'
     }`;
 
   return (
@@ -88,14 +100,21 @@ export default function Home() {
         )}
         {navItem === "Chats" && (
           <div className="flex right-0">
-            <ChatList
-              chats={characters}
-              onSelectChat={setSelectedChat}
-            />
-            <ChatWindow
-              selectedChat={selectedChat}
-              onMessageSent={handleMessageSent}
-            />
+            {(!isMobile || !showChatWindow) && (
+              <ChatList
+                chats={characters}
+                onSelectChat={handleSelectChat}
+                isMobile={isMobile}
+              />
+            )}
+            {(!isMobile || showChatWindow) && (
+              <ChatWindow
+                selectedChat={selectedChat}
+                onMessageSent={handleMessageSent}
+                onBackClick={handleBackClick}
+                isMobile={isMobile}
+              />
+            )}
           </div>
         )}
         {navItem === "Store" && <StorePage />}

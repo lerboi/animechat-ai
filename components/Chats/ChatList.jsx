@@ -3,7 +3,7 @@ import { User, Users, Check } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { LuPencilLine } from "react-icons/lu";
 
-export default function ChatList({ onSelectChat }) {
+export default function ChatList({ onSelectChat, isMobile }) {
   const [selectedChat, setSelectedChat] = useState(null)
   const [characters, setCharacters] = useState([])
   const [error, setError] = useState(null)
@@ -13,7 +13,7 @@ export default function ChatList({ onSelectChat }) {
 
   useEffect(() => {
     async function fetchCharacters() {
-      if (!session) return; // Don't fetch if not logged in
+      if (!session) return;
 
       try {
         const response = await fetch("/api/getChatsAPI")
@@ -98,7 +98,6 @@ export default function ChatList({ onSelectChat }) {
         throw new Error("Failed to delete chats");
       }
 
-      // Remove deleted chats from the state
       setCharacters(prevCharacters => 
         prevCharacters.filter(char => !selectedChats.includes(char.id))
       );
@@ -115,7 +114,7 @@ export default function ChatList({ onSelectChat }) {
   }
 
   return (
-    <div className="bg-[#212121] text-[#e7e7e7] w-full md:w-1/4 h-[100vh] flex flex-col overflow-hidden bg-opacity-60">
+    <div className={`bg-[#212121] text-[#e7e7e7] h-[100vh] flex flex-col overflow-hidden bg-opacity-60 ${isMobile ? 'w-full' : 'w-1/4'}`}>
       <div className="p-4 font-semibold text-lg border-b border-gray-700 flex justify-between items-center">
         <span>Characters</span>
         <button onClick={() => setIsEditing(!isEditing)} className="flex items-center text-slate-300 text-sm hover:bg-[#2c2c2c] p-1 rounded">
