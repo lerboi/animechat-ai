@@ -6,3 +6,26 @@ Default: "1girl, cagliostro, granblue fantasy, violet eyes, standing, hand on ow
 
 TODO:
 Add functionality where when picture icon pressed, only select chathistory from the messages above content
+
+v0 prompts:
+
+{Insert getAiImageResponseAPI}
+
+Above is my getAiImageResponseAPI.js
+
+{insert getImageResponse function}
+
+Above is my getImageResponse function
+
+Task:
+Update the code in the getImageResponse function and the getAiImageResponseAPI route to achieve the following results:
+
+1. Call getAiImageResponseAPI in getImageResponse:
+- The getImageResponse function should call getAiImageResponseAPI, which will return the finalPrompt.
+
+2. Run Image Generation Code in getImageResponse:
+- Instead of executing the image generation code in the getAiImageResponseAPI route, move this logic to the getImageResponse function.
+- Use the returned finalPrompt as the value for the prompt field in the input for image generation.
+
+3. Change Output Reference:
+- After running the image generation code in getImageResponse, change the reference from data.imageUrl to output.url.

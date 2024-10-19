@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 import { RiImageCircleFill } from "react-icons/ri";
+import Replicate from 'replicate';
 
 export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, isMobile }) {
   const [messages, setMessages] = useState([])
@@ -109,6 +110,8 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
         await addChatHistory(aiMessage)
         onMessageSent(aiMessage);
       }
+
+      await useTokens("message");
     }
   }
 
@@ -237,7 +240,8 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
     ));
   
     try {
-      const response = await fetch("/api/getAiImageResponseAPI", {
+      // Call getAiImageResponseAPI to get the finalPrompt
+      const promptResponse = await fetch("/api/getAiImageResponseAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -249,30 +253,79 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
         })
       });
   
-      const data = await response.json();
-      console.log("Image API response:", data.output);
+      const promptData = await promptResponse.json();
+      
+      if (!promptResponse.ok || !promptData.finalPrompt) {
+        throw new Error(promptData.error || "Failed to generate prompt");
+      }
   
-      if (response.ok && data.imageUrl) {
+      console.log("Final Prompt:", promptData.finalPrompt);
+  
+      // Image Generation Section
+      const replicate = new Replicate({
+        auth: process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN,
+      });
+  
+      const output = await replicate.run(
+        "cjwbw/animagine-xl-3.1:6afe2e6b27dad2d6f480b59195c221884b6acc589ff4d05ff0e5fc058690fbb9",
+        {
+          input: {
+            "width": 896,
+            "height": 1152,
+            "prompt": promptData.finalPrompt.prompt,
+            "guidance_scale": 7,
+            "style_selector": "Anime",
+            "negative_prompt": "blurry eyes, asymmetrical eyes, extra eyes, fused eyes, discolored eyes, cross-eyed, lazy eye, low-resolution eyes, dull pupils, missing iris, distorted face, extra hands, extra fingers, deformed hands, incorrect anatomy, mismatched hand size, fused fingers, mutated limbs, unnatural gestures, twisted hand poses, pixelated fingers, glitchy anatomy, overexposed",
+            "quality_selector": "Standard v3.1",
+            "num_inference_steps": 28
+          }
+        }
+      );
+  
+      console.log("Generated image URL:", output);
+  
+      if (output && output[0]) {
         setMessages(prevMessages => prevMessages.map(message => 
           message.id === messageId 
-            ? { ...message, imageUrl: data.imageUrl, isGeneratingImage: false }
+            ? { ...message, imageUrl: output[0], isGeneratingImage: false }
             : message
         ));
+        await useTokens("image");
       } else {
-        console.error("Failed to generate image:", data.error || "Unknown error");
-        setMessages(prevMessages => prevMessages.map(message => 
-          message.id === messageId 
-            ? { ...message, imageError: data.error || "Failed to generate image", isGeneratingImage: false }
-            : message
-        ));
+        throw new Error("Unexpected output format from Replicate API");
       }
     } catch (error) {
       console.error("Error generating image:", error);
       setMessages(prevMessages => prevMessages.map(message => 
         message.id === messageId 
-          ? { ...message, imageError: "An error occurred while generating the image", isGeneratingImage: false }
+          ? { ...message, imageError: error.message || "An error occurred while generating the image", isGeneratingImage: false }
           : message
       ));
+    }
+  }
+
+
+  async function useTokens(messageType) {
+    try {
+      const response = await fetch("/api/useTokensAPI", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: session.user.id,
+          messageType: messageType
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update tokens");
+      }
+
+      const data = await response.json();
+      console.log("Tokens updated:", data);
+    } catch (error) {
+      console.error("Error updating tokens:", error);
     }
   }
 
