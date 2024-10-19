@@ -16,7 +16,6 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
   const [isTyping, setIsTyping] = useState(false);
   const [lastActive, setLastActive] = useState(new Date());
   const [status, setStatus] = useState('online');
-  const [generatedImage, setGeneratedImage] = useState(null);
   const togglePopup = () => setShowPopup(!showPopup);
 
   const scrollToBottom = () => {
@@ -225,12 +224,18 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
     return <>{formattedContent}</>;
   }
 
-  async function getImageResponse() {
+  async function getImageResponse(messageId) {
     if (!session || !session.user) {
       console.error("User not authenticated");
       return;
     }
-
+  
+    setMessages(prevMessages => prevMessages.map(message => 
+      message.id === messageId 
+        ? { ...message, isGeneratingImage: true }
+        : message
+    ));
+  
     try {
       const response = await fetch("/api/getAiImageResponseAPI", {
         method: "POST",
@@ -243,15 +248,31 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
           userId: session.user.id
         })
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setGeneratedImage(data.imageUrl);
+  
+      const data = await response.json();
+      console.log("Image API response:", data.output);
+  
+      if (response.ok && data.imageUrl) {
+        setMessages(prevMessages => prevMessages.map(message => 
+          message.id === messageId 
+            ? { ...message, imageUrl: data.imageUrl, isGeneratingImage: false }
+            : message
+        ));
       } else {
-        console.error("Failed to generate image");
+        console.error("Failed to generate image:", data.error || "Unknown error");
+        setMessages(prevMessages => prevMessages.map(message => 
+          message.id === messageId 
+            ? { ...message, imageError: data.error || "Failed to generate image", isGeneratingImage: false }
+            : message
+        ));
       }
     } catch (error) {
       console.error("Error generating image:", error);
+      setMessages(prevMessages => prevMessages.map(message => 
+        message.id === messageId 
+          ? { ...message, imageError: "An error occurred while generating the image", isGeneratingImage: false }
+          : message
+      ));
     }
   }
 
@@ -308,23 +329,33 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
         }}
       >
         <div className="relative z-10">
-          {messages.map((message) => (
-            <div key={message.id} className={`mb-4 flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[70%] rounded-lg p-3 ${message.isUser ? 'bg-[#2b5278]' : 'bg-[#182533]'} relative`}>
-                {!message.isUser && (
-                  <button
-                    onClick={getImageResponse}
-                    className="absolute top-2 right-2 text-gray-400 hover:text-white"
-                  >
-                    <RiImageCircleFill size={20} />
-                  </button>
-                )}
-                {!message.isUser && <p className="text-sm font-semibold mb-1">{message.sender}</p>}
-                <p>{formatMessageContent(message.content)}</p>
-                <p className="text-xs text-gray-400 mt-1">{message.timestamp}</p>
-              </div>
+        {messages.map((message) => (
+          <div key={message.id} className={`mb-4 flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[70%] rounded-lg p-3 ${message.isUser ? 'bg-[#2b5278]' : 'bg-[#182533]'} relative`}>
+              {!message.isUser && (
+                <button
+                  onClick={() => getImageResponse(message.id)}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                  disabled={message.isGeneratingImage}
+                >
+                  <RiImageCircleFill size={20} />
+                </button>
+              )}
+              {!message.isUser && <p className="text-sm font-semibold mb-1">{message.sender}</p>}
+              <p>{formatMessageContent(message.content)}</p>
+              {message.isGeneratingImage && (
+                <p className="text-xs text-gray-400 mt-2">Generating image...</p>
+              )}
+              {message.imageUrl && (
+                <img src={message.imageUrl} alt="AI Generated" className="w-full h-auto rounded mt-2" />
+              )}
+              {message.imageError && (
+                <p className="text-xs text-red-400 mt-2">{message.imageError}</p>
+              )}
+              <p className="text-xs text-gray-400 mt-1">{message.timestamp}</p>
             </div>
-          ))}
+          </div>
+        ))}
           {isTyping && (
             <div className="mb-4 flex justify-start">
               <div className="max-w-[70%] rounded-lg p-3 bg-[#182533]">
@@ -333,13 +364,6 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
                   <span className="dot"></span>
                   <span className="dot"></span>
                 </div>
-              </div>
-            </div>
-          )}
-          {generatedImage && (
-            <div className="mb-4 flex justify-start">
-              <div className="max-w-[70%] rounded-lg p-3 bg-[#182533]">
-                <img src={generatedImage} alt="AI Generated" className="w-full h-auto rounded" />
               </div>
             </div>
           )}

@@ -4,49 +4,5 @@ blurry eyes, deformed eyes, asymmetrical eyes, extra eyes, fused eyes, discolore
 Example Prompt:
 Default: "1girl, cagliostro, granblue fantasy, violet eyes, standing, hand on own chin, looking at object, smile, closed mouth, table, beaker, glass tube, experiment apparatus, dark room, laboratory, upper body"
 
-PROMPT TO CREATE PICTURE AI FUNCTION
-What i need?
-schema.prisma, ChatWindow.jsx, getAiImageResponseAPI.js
-
-{insert schema.prisma}
-
-The above is my schema.prisma for reference
-
-{insert ChatWindow.jsx}
-
-The above is my ChatWindow.jsx
-
-{insert getAiImageResponseAPI.js}
-
-The above is my getAiImageResponseAPI.js
-
-Task:
-Add functionality to your website where users can click on an image icon beside the AI character’s message to fetch an AI-generated image using the getAiImageResponse() function.
-
-Implementation Plan:
-
-In ChatWindow.jsx:
-- In the messages.map function, where the user and character messages are being rendered:
-- Add the RiImageCircleFill react icon.
-- Position it on the top-right corner relative to each character’s message.
-
-On Icon Click:
-- Trigger the getImageResponse() function.
-- Inside this function, make a fetch() call with a GET method.
-- Include the following data in the request body:
-body: JSON.stringify({
-    messages: messages,
-    characterId: selectedChat.characterId,
-    userId: session.user.id
-})
-
-In getAiImageResponseAPI:
-- Implement an API route that connects to the Mistral Client.
-- Retrieve the chat history between the user and character from the respective database entry.
-- From the retrieved chat history, deduce the current action being performed by the character.
-- Format the chat history into a prompt like the example below:
-
-Example Prompt:
-1girl, cagliostro (example character name), granblue fantasy (example anime name), violet eyes (attire), standing, hand on own chin, looking at object, smile, closed mouth, table, beaker, glass tube, experiment apparatus, dark room, laboratory, upper body
-
-
+TODO:
+Add functionality where when picture icon pressed, only select chathistory from the messages above content
