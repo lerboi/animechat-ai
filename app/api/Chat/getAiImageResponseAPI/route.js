@@ -48,7 +48,7 @@ export async function POST(req) {
         {
           role: 'system',
           content: `
-            You are an AI assistant that analyzes chat history and creates a detailed, concise prompt for image generation.
+            You are an AI assistant that analyzes chat history and creates a detailed, concise, Danbooru-style tags prompt for image generation.
             Extract the following information:
             1. **Current Action**: What is the character doing or interacting with? Aside from detailing this, ensure to add the general action the Character is performing.
             2. **Current Attire**: Describe the character's clothing, accessories, or visible traits in this scene.
@@ -57,13 +57,13 @@ export async function POST(req) {
             Format the response as a **single sentence** prompt like this:
             "{clothing_state}, {attire}, {action}, {environment or objects if relevant}"
     
-            Ensure that the clothing state is relevant to the context and always included.
+            Ensure that the clothing state is relevant to the context and always included. Ensure the description uses Danbooru-style tags.
           `,
         },
         {
           role: 'user',
           content: `
-            Analyze this chat history and deduce the current action, attire, and the degree of clothing of the character named ${userCharacter.character.name}:
+            Analyze this chat history and deduce the current action, attire, and the degree of clothing of the character named ${userCharacter.character.name} in Danbooru-style tags:
             ${JSON.stringify(formattedChatHistory)}
           `,
         },

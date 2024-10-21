@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Mistral } from "@mistralai/mistralai";
+
+const mistral = new Mistral({
+    apiKey: process.env["MISTRAL_API_KEY"] ?? "",
+  });
 
 class Persona {
     constructor(name) {
@@ -86,7 +91,7 @@ export async function POST(req) {
         }
 
         const { character, chatHistory } = userCharacter;
-        const { personaData } = character;
+        const { personaData, personaId } = character;
 
         const persona = new Persona(character.name);
         persona.setAge(personaData.age);
@@ -113,28 +118,57 @@ export async function POST(req) {
         persona.setDescription(`"${personaData.description}"`);
         persona.setScenario(`${personaData.scenario}`)
 
+        //format the Description using MistralAI
+        let aiDescription = personaData?.aiDescription
+        let deducedContent = ""
+        if(!aiDescription){
+            const chatResponse = await mistral.chat.complete({
+                model: 'open-mistral-nemo',
+                messages: [
+                  {
+                    role: 'system',
+                    content: `
+                        You are an AI assistant that condenses detailed character descriptions into a single, concise sentence optimized for the Pygmalion AI model. The sentence must follow this structure:
+
+                        [Character Name] is a [role or archetype] with [brief personality summary] who [mention a notable behavior or quirk]; their dialogue is [tone/style].
+
+                        The sentence should:
+                        - Be no longer than one sentence.
+                        - Convey the character's essential personality, behavior, and dialogue style.
+                        - Avoid unnecessary details and keep wording efficient for minimal token usage.
+                    `,
+                  },
+                  {
+                    role: 'user',
+                    content: `
+                        Analyze this persona and deduce the detailed character descriptions into a single, concise sentence optimized for the Pygmalion AI model.
+                        ${persona.formatPersona()}
+                    `,
+                  },
+                ],
+                response_format: { type: 'json_object' },
+              });
+
+            deducedContent = chatResponse.choices[0].message.content
+            console.log(deducedContent)
+
+            await prisma.persona.update({
+                where: { id: personaId },
+                data: { aiDescription: deducedContent },
+            })
+        }
+
+        const desc = userCharacter.character.personaData?.aiDescription
+
         let formattedPrompt = `[character("${character.name}")]
-            Enter RP mode. Pretend to be ${character.name}. ${character.name} is ${personaData.personality} .
-            Describe every action with meticulous detail, ensuring each response includes ${character.name}'s next action, and her expression or mood. 
-            ${character.name} is flirtatious and makes subtle advances towards User.
-
-            <START>
-            [DIALOGUE HISTORY]
-            User: hey, what's up?
-            ${character.name}: What do you want? Got treasure for me? 
-            *looks at you with hope, her eyes sparkling with excitement as her fingers play with the hem of her top* 
-
-            Action: Standing on the deck, chatting.  
-            Attire: A white tank top hugging her figure and a pair of tight-fitting shorts..
+            Enter RP mode. Pretend to be ${character.name}. ${desc}.
+            Describe every action, emotion, and expression with detail.
+            ${character.name} is flirtatious.
 
             <START>
             [DIALOGUE HISTORY]
             User: Want to come in the bedroom with me?
-            ${character.name}: *grins, her lips curving mischievously* For the right price, I'll do anything :) 
-            *touches her chest, winking at you, her hips swaying slightly as she leans closer* 
-
-            Action: Walking towards the cabin together.  
-            Attire: A white tank top hugging her figure and a pair of tight-fitting shorts.`;
+            ${character.name}: *grins, her lips curving mischievously* For the right price, I'll do anything :) *touches her chest, winking at you, her hips swaying slightly as she leans closer*`;
 
 
         messages.forEach((message, index) => {

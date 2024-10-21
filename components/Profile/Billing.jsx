@@ -12,7 +12,7 @@ export default function Billing() {
     async function fetchBillingInfo() {
       if (session) {
         try {
-          const response = await fetch('/api/getBillingInfoAPI', {
+          const response = await fetch('/api/subscriptions/getSubscriptionInfoAPI', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -30,15 +30,15 @@ export default function Billing() {
     fetchBillingInfo();
   }, [session]);
 
-  const handleCancelSubscription = async () => {
+  async function handleCancelSubscription() {
     // Implement subscription cancellation logic here
   }
 
-  const handleUpgradeSubscription = async () => {
+  async function handleUpgradeSubscription() {
     // Implement subscription upgrade logic here
   }
 
-  const handleDowngradeSubscription = async () => {
+  async function handleDowngradeSubscription() {
     // Implement subscription downgrade logic here
   }
 

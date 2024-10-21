@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Payment" ALTER COLUMN "subscriptionId" DROP DEFAULT,
+ALTER COLUMN "userId" DROP DEFAULT;

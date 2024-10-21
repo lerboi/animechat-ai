@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 import { RiImageCircleFill } from "react-icons/ri";
-import Replicate from 'replicate';
+import Image from 'next/image';
 
 export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, isMobile }) {
   const [messages, setMessages] = useState([])
@@ -22,12 +22,14 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
+
+  const REPLICATE_API_KEY = process.env.REPLICATE_API_KEY
   
   useEffect(() => {
     async function fetchChatHistory() {
       if (selectedChat && session) {
         try {
-          const response = await fetch(`/api/fetchChatHistoryAPI?characterId=${selectedChat.characterId}&userId=${session.user.id}`);
+          const response = await fetch(`/api/Chat/fetchChatHistoryAPI?characterId=${selectedChat.characterId}&userId=${session.user.id}`);
           if (!response.ok) {
             throw new Error('Failed to fetch chat history');
           }
@@ -117,7 +119,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
 
   async function addChatHistory(message) {
     try {
-      const response = await fetch("/api/addChatHistoryAPI", {
+      const response = await fetch("/api/Chat/addChatHistoryAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -142,7 +144,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
     }
 
     try {
-      const response = await fetch("/api/getAiResponseAPI", {
+      const response = await fetch("/api/Chat/getAiResponseAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -171,7 +173,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
 
   async function resetChat(){
     try {
-      const response = await fetch("/api/resetChatAPI", {
+      const response = await fetch("/api/Chat/resetChatAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -197,7 +199,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
 
   async function deleteGenkey() {
     try {
-      const response = await fetch("/api/deleteGenkeyAPI", {
+      const response = await fetch("/api/Chat/deleteGenkeyAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -241,7 +243,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
   
     try {
       // Call getAiImageResponseAPI to get the finalPrompt
-      const promptResponse = await fetch("/api/getAiImageResponseAPI", {
+      const promptResponse = await fetch("/api/Chat/getAiImageResponseAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -262,7 +264,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
       console.log("Final Prompt:", promptData.finalPrompt);
   
       // Image Generation Section
-      const imageResponse = await fetch("/api/fetchImage", {
+      const imageResponse = await fetch("/api/Chat/getImageAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -271,20 +273,20 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
           prompt: promptData.finalPrompt.prompt
         })
       });
-  
-      const imageData = await imageResponse.json();
-      console.log(imageData?.urls?.get);
-  
-      if (!imageResponse.ok || !imageData.urls || !imageData.urls.get) {
-        throw new Error(imageData.error || "Failed to generate image");
+      const image = await imageResponse.json()
+      console.log(image)
+
+      if (!imageResponse.ok || !image) {
+        throw new Error("Failed to generate image");
       }
   
       setMessages(prevMessages => prevMessages.map(message => 
         message.id === messageId 
-          ? { ...message, imageUrl: imageData.urls.get, isGeneratingImage: false }
+          ? { ...message, imageUrl: image, isGeneratingImage: false, imageError: null }
           : message
       ));
       await useTokens("image");
+
     } catch (error) {
       console.error("Error generating image:", error);
       setMessages(prevMessages => prevMessages.map(message => 
@@ -297,7 +299,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
 
   async function useTokens(messageType) {
     try {
-      const response = await fetch("/api/useTokensAPI", {
+      const response = await fetch("/api/Chat/useTokensAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -390,7 +392,12 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
                 <p className="text-xs text-gray-400 mt-2">Generating image...</p>
               )}
               {message.imageUrl && (
-                <img src={message.imageUrl} alt="AI Generated" className="w-full h-auto rounded mt-2" />
+                <img
+                  width={448}
+                  height={576}
+                  src={message.imageUrl}
+                  alt="AI Generated"
+                  className="w-full h-auto rounded mt-2" />
               )}
               {message.imageError && (
                 <p className="text-xs text-red-400 mt-2">{message.imageError}</p>

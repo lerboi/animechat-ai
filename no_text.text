@@ -8,9 +8,34 @@ TODO:
 - Add functionality where when picture icon pressed, only select chathistory from the messages above content
 - implement Subscription API routes into respective .jsx pages
 - edit webhook.js to change find.billing to find.Subscription
--  figure out good ai prompt to create all characters
+- figure out good ai prompt to create all characters
+- Make pictures stay
+- Add Gallery feature
 
 v0 prompts:
 
 I am passing the above into an AI model to help me to write the code. Help me to streamline and improve my prompt such that it will make the AI produce better outcomes. Keep all the details that i wrote and do not remove any details.
 
+{insert getSubscriptionInfoAPI}
+
+The above is my getSubscriptionInfoAPI route
+
+{insert cancel, upgrade, downgrade, API routes}
+
+Above is my handleCancelSubscription, handleUpgradeSubscription, and handleDowngradeSubscription functions in my Billing.jsx respectively.
+
+{insert prisma schema}
+
+The above is my prisma schema for reference
+
+TASK
+my getSubscriptionInfoAPI route is using an outdated schema.prisma model. Based on the updated prisma.schema model, edit the code in the API route to fetch the required info to display
+the data below, and to fetch the required data for the functions below as well.
+
+- Current tier (FREE, PLUS, or PREMIUM)
+- Subscription status (ACTIVE, CANCELED, PAST_DUE, INACTIVE, or TRIALING)
+- Start date of the current subscription
+- End date (if applicable, for fixed-term subscriptions)
+- Cancel subscription (with confirmation dialog)
+- Upgrade subscription (if not on the highest tier)
+- Downgrade subscription (if not on the lowest tier)
