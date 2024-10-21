@@ -262,7 +262,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
       console.log("Final Prompt:", promptData.finalPrompt);
   
       // Image Generation Section
-      const imageResponse = await fetch("/api/replicateProxy", {
+      const imageResponse = await fetch("/api/fetchImage", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

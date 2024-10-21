@@ -4,6 +4,7 @@ import { BsChatDots } from "react-icons/bs";
 import { useSession } from "next-auth/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function CharacterCard({ character }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -68,7 +69,13 @@ export default function CharacterCard({ character }) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <img src={character.picture} alt={character.name} className="w-full h-full object-cover" />
+        <Image 
+          src={`/${character.picture}`} 
+          alt={character.name} 
+          layout="fill"
+          objectFit="cover"
+          loading="lazy"
+        />
         <div 
           className={`absolute inset-0 bg-black transition-opacity duration-300 ${
             isHovered ? 'opacity-70' : 'opacity-0'

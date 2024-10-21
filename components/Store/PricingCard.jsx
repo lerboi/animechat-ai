@@ -28,7 +28,7 @@ export function PricingCard({ name, price, period, altPrice, benefits, isSelecte
         disabled={isCurrentPlan}
         onClick={isCurrentPlan ? null : onSubscribe}
       >
-        {name === "Free" ? "Select" : buttonText}
+        {buttonText}
       </Button>
     </div>
   )

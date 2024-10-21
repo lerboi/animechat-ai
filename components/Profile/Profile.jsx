@@ -3,6 +3,10 @@ import { useSession, signOut } from 'next-auth/react';
 import Payments from './Payment';
 import Billing from './Billing';
 
+const tabs = [
+  "Profile", "Billing", "Payments"
+]
+
 export default function Profile() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState('Profile');
@@ -20,7 +24,7 @@ export default function Profile() {
       <div className="w-1/4 bg-transparent p-6 border-r border-gray-600 relative">
         <h2 className="text-2xl font-bold mb-6 text-white">Settings</h2>
         <ul>
-          {['Profile', 'Billing'].map((tab) => (
+          {tabs.map((tab) => (
             <li
               key={tab}
               className={`cursor-pointer py-2 px-4 mb-2 rounded ${
@@ -57,6 +61,7 @@ export default function Profile() {
           </div>
         )}
         {activeTab === 'Billing' && <Billing />}
+        {activeTab === 'Payments' && <Payments />}
       </div>
     </div>
   );

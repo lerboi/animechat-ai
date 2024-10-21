@@ -12,15 +12,28 @@ export async function GET() {
 
     try {
         const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
-            select: { tier: true }
+            where: { id: session.user.id },
+            include: {
+                subscriptions: {
+                    where: { status: 'ACTIVE' },
+                    orderBy: { createdAt: 'desc' },
+                    take: 1,
+                },
+            },
         })
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
 
-        return NextResponse.json({ tier: user.tier })
+        const activeSub = user.subscriptions[0]
+        return NextResponse.json({
+            tier: activeSub ? activeSub.tier : 'FREE',
+            subscriptionId: activeSub ? activeSub.id : null,
+            status: activeSub ? activeSub.status : null,
+            startDate: activeSub ? activeSub.startDate : null,
+            endDate: activeSub ? activeSub.endDate : null,
+        })
     } catch (error) {
         console.error('Error fetching user tier:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

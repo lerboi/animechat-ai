@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react'
 import { loadStripe } from '@stripe/stripe-js'
 import { HiOutlineCurrencyDollar, HiMiniCurrencyDollar } from "react-icons/hi2";
 
-
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 const tiers = [
@@ -34,7 +33,7 @@ const tiers = [
       'Access to pictures',
     ],
     isPopular: true,
-    stripeId: 'price_1QAvkYCoZlAUNSEljLvWslqi',
+    stripeId: 'price_1QCF5tCoZlAUNSElrMZu2AfC',
   },
   {
     name: 'Premium',
@@ -47,7 +46,7 @@ const tiers = [
       'Unlimited chats',
       'Create your own Characters',
     ],
-    stripeId: 'price_1QAvl3CoZlAUNSElmAezTZOp',
+    stripeId: 'price_1QCF66CoZlAUNSElYNbnJzHD',
   },
 ]
 
@@ -63,11 +62,11 @@ const tokenBundle = {
 
 export default function StorePage() {
   const [selectedTier, setSelectedTier] = useState('Premium')
-  const [userTier, setUserTier] = useState(null)
+  const [userSubscription, setUserSubscription] = useState(null)
   const { data: session } = useSession()
 
   useEffect(() => {
-    async function fetchUserTier() {
+    async function fetchUserSubscription() {
       if (session) {
         try {
           const response = await fetch('/api/getUserTierAPI', {
@@ -78,19 +77,18 @@ export default function StorePage() {
           })
           if (response.ok) {
             const data = await response.json()
-            setUserTier(data.tier)
+            setUserSubscription(data)
           }
         } catch (error) {
-          console.error('Error fetching user tier:', error)
+          console.error('Error fetching user subscription:', error)
         }
       }
     }
-    fetchUserTier()
+    fetchUserSubscription()
   }, [session])
 
   const handleSubscribe = async (stripeId) => {
     if (!session) {
-      // Redirect to login or show a message
       alert('Please log in to subscribe')
       return
     }
@@ -140,8 +138,8 @@ export default function StorePage() {
                 benefits={tier.benefits}
                 isSelected={selectedTier === tier.name}
                 onSelect={() => setSelectedTier(tier.name)}
-                buttonText={userTier === tier.name.toUpperCase() ? "Current plan" : "Get Started"}
-                isCurrentPlan={userTier === tier.name.toUpperCase()}
+                buttonText={userSubscription && userSubscription.tier === tier.name.toUpperCase() ? "Current plan" : "Get Started"}
+                isCurrentPlan={userSubscription && userSubscription.tier === tier.name.toUpperCase()}
                 onSubscribe={() => handleSubscribe(tier.stripeId)}
               />
             </div>

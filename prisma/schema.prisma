@@ -17,21 +17,54 @@ model User {
   emailVerified DateTime?
   image         String?
   googleId      String?
-  password      String?          @unique
+  password      String?         @unique
   accounts      Account[]
   sessions      Session[]
-  billing       Billing[]
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
 
-  tier          Tier @default(FREE)
-  textTokens    Int @default(50)  
-  imageTokens   Int @default(3)  
+  subscriptions Subscription[]
+  payments      Payment[]
+  textTokens    Int             @default(50)
+  imageTokens   Int             @default(3)
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  userCharacters UserCharacter[]
+  authenticators Authenticator[]
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String
+  user                 User               @relation(fields: [userId], references: [id])
+  stripeSubscriptionId String             @unique
+  priceId              String
+  status               SubscriptionStatus
+  tier                 Tier               @default(FREE)
+  startDate            DateTime
+  endDate              DateTime?
+  paymentMethod        String
+  cardLastFour         String?
+  cardBrand            String?
+  billingAddress       String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  payments             Payment[]
 
-  userCharacters UserCharacter[] // Relation to the UserCharacter model
+  @@index([userId])
+}
+
+model Payment {
+  id             Int          @id @default(autoincrement())
+  subscriptionId String       
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  userId         String       
+  user           User         @relation(fields: [userId], references: [id])
+  amount         Float
+  status         String
+  createdAt      DateTime     @default(now())
+
+  @@index([subscriptionId])
+  @@index([userId])
 }
 
 enum Tier {
@@ -40,32 +73,15 @@ enum Tier {
   PREMIUM
 }
 
-model Billing {
-  id                Int       @id @default(autoincrement()) 
-  userId            String    
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  subscriptionId    String?   
-  paymentMethod     String     
-  cardLastFour      String?    
-  cardBrand         String?    
-  billingAddress    String?    
-  isActive          Boolean    @default(true) // Indicates if the billing info is active
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt 
-
-  paymentHistory    Payment[] 
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  INACTIVE
+  TRIALING
 }
 
-model Payment {
-  id          Int      @id @default(autoincrement()) 
-  billingId   Int      
-  billing     Billing   @relation(fields: [billingId], references: [id], onDelete: Cascade)
-
-  amount      Float     
-  status      String    
-  createdAt   DateTime  @default(now()) 
-}
+// Keep other models (Account, Session, UserCharacter, Authenticator) as they are
 
 
 model Character {
