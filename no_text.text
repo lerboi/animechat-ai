@@ -16,26 +16,43 @@ v0 prompts:
 
 I am passing the above into an AI model to help me to write the code. Help me to streamline and improve my prompt such that it will make the AI produce better outcomes. Keep all the details that i wrote and do not remove any details.
 
-{insert getSubscriptionInfoAPI}
-
-The above is my getSubscriptionInfoAPI route
-
-{insert cancel, upgrade, downgrade, API routes}
-
-Above is my handleCancelSubscription, handleUpgradeSubscription, and handleDowngradeSubscription functions in my Billing.jsx respectively.
-
-{insert prisma schema}
-
-The above is my prisma schema for reference
-
 TASK
-my getSubscriptionInfoAPI route is using an outdated schema.prisma model. Based on the updated prisma.schema model, edit the code in the API route to fetch the required info to display
-the data below, and to fetch the required data for the functions below as well.
 
-- Current tier (FREE, PLUS, or PREMIUM)
-- Subscription status (ACTIVE, CANCELED, PAST_DUE, INACTIVE, or TRIALING)
-- Start date of the current subscription
-- End date (if applicable, for fixed-term subscriptions)
-- Cancel subscription (with confirmation dialog)
-- Upgrade subscription (if not on the highest tier)
-- Downgrade subscription (if not on the lowest tier)
+{insert storePage.jsx}
+
+The above is my StorePage.jsx, where the user clicks on the subscription and is redirected to checkout
+
+ {insert create-checkout-session}
+
+ Above is my create-checkout-session API for users to checkout on the stripe checkout page.
+
+ {insert /success page}
+
+ Above is my page.jsxx for a success_url after a succesful transaction
+
+ {insert prisma schema}
+
+ Above is my prisma schema for reference
+
+Success Page Logic:
+When a user successfully completes a payment and is redirected to the success page, run two functions:
+    - addPaymentInfo()
+    - addSubscriptionInfo()
+
+Both functions will connect to API routes:
+    - addPaymentInfo API → Route: /api/payments/{insert name}
+    - addSubscriptionInfo API → Route: /api/subscriptions/{insert name}
+
+Additionally, create the API routes required for both functions.
+
+API Route: addPaymentInfo
+- In this route, write the logic to store all the necessary payment information using the Payment model from my Prisma schema.
+- Ensure all relevant fields are properly populated based on the model.
+
+API Route: addSubscriptionInfo
+- In this route, write the logic to store all the required subscription details with reference to my Subscription model from the Prisma schema.
+- For the startDate and endDate:
+    - startDate should be the exact date the payment was made.
+    - endDate should be 1 month from the startDate (for example, if the start date is January 22, the end date will be February 22).
+
+I am using Nextjs14 with App router

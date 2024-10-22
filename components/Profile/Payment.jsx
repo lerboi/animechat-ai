@@ -6,15 +6,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function Payment() {
-  const [billingInfo, setBillingInfo] = useState(null);
   const [payments, setPayments] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState(null);
   const { data: session } = useSession();
 
   useEffect(() => {
-    async function fetchBillingInfo() {
+    async function fetchPaymentInfo() {
       if (session) {
         try {
-          const response = await fetch('/api/getBillingInfoAPI', {
+          const response = await fetch('/api/payments/getPaymentsAPI', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -22,39 +22,59 @@ export default function Payment() {
           });
           if (response.ok) {
             const data = await response.json();
-            setBillingInfo(data.billingInfo);
             setPayments(data.payments);
+            setPaymentMethod(data.paymentMethod);
           }
         } catch (error) {
-          console.error('Error fetching billing info:', error);
+          console.error('Error fetching payment info:', error);
         }
       }
     }
-    fetchBillingInfo();
+    fetchPaymentInfo();
   }, [session]);
 
-  const handleUpdatePaymentMethod = async (e) => {
+  async function handleUpdatePaymentMethod(e) {
     e.preventDefault();
-    // Implement update payment method logic here
-  }
+    const formData = new FormData(e.target);
+    const cardData = {
+      cardNumber: formData.get('cardNumber'),
+      expiryDate: formData.get('expiryDate'),
+      cvv: formData.get('cvv'),
+    };
 
-  const handleUpdateBillingAddress = async (e) => {
-    e.preventDefault();
-    // Implement update billing address logic here
+    try {
+      const response = await fetch('/api/payments/updatePaymentMethodAPI', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cardData),
+      });
+
+      if (response.ok) {
+        // Refresh payment info after update
+        fetchPaymentInfo();
+      } else {
+        console.error('Failed to update payment method');
+      }
+    } catch (error) {
+      console.error('Error updating payment method:', error);
+    }
   }
 
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold mb-6">Payment Information</h1>
       
-      {billingInfo && (
+      {paymentMethod && (
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Current Payment Method</h2>
-          <p>Payment Method: {billingInfo.paymentMethod}</p>
-          {billingInfo.cardLastFour && (
+          <p>Payment Method: {paymentMethod.type}</p>
+          {paymentMethod.cardLastFour && (
             <>
-              <p>Card: **** **** **** {billingInfo.cardLastFour}</p>
-              <p>Brand: {billingInfo.cardBrand}</p>
+              <p>Card: **** **** **** {paymentMethod.cardLastFour}</p>
+              <p>Brand: {paymentMethod.cardBrand}</p>
+              <p>Expires: {paymentMethod.expirationMonth}/{paymentMethod.expirationYear}</p>
             </>
           )}
           
@@ -62,36 +82,19 @@ export default function Payment() {
             <h3 className="text-xl font-semibold">Update Payment Method</h3>
             <div>
               <Label htmlFor="cardNumber">Card Number</Label>
-              <Input id="cardNumber" placeholder="1234 5678 9012  3456" required />
+              <Input id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required />
             </div>
             <div className="flex space-x-4">
               <div>
                 <Label htmlFor="expiryDate">Expiry Date</Label>
-                <Input id="expiryDate" placeholder="MM/YY" required />
+                <Input id="expiryDate" name="expiryDate" placeholder="MM/YY" required />
               </div>
               <div>
                 <Label htmlFor="cvv">CVV</Label>
-                <Input id="cvv" placeholder="123" required />
+                <Input id="cvv" name="cvv" placeholder="123" required />
               </div>
             </div>
             <Button type="submit">Update Payment Method</Button>
-          </form>
-
-          <form onSubmit={handleUpdateBillingAddress} className="space-y-4">
-            <h3 className="text-xl font-semibold">Update Billing Address</h3>
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input id="address" placeholder="123 Main St" required />
-            </div>
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input id="city" placeholder="New York" required />
-            </div>
-            <div>
-              <Label htmlFor="zipCode">Zip Code</Label>
-              <Input id="zipCode" placeholder="12345" required />
-            </div>
-            <Button type="submit">Update Billing Address</Button>
           </form>
         </div>
       )}
@@ -103,7 +106,7 @@ export default function Payment() {
             {payments.map((payment) => (
               <li key={payment.id} className="border p-4 rounded">
                 <p>Date: {new Date(payment.createdAt).toLocaleDateString()}</p>
-                <p>Amount: ${payment.amount}</p>
+                <p>Amount: ${payment.amount.toFixed(2)}</p>
                 <p>Status: {payment.status}</p>
               </li>
             ))}

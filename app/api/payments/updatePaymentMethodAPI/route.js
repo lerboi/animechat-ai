@@ -1,4 +1,4 @@
-// app/api/payment/update-method/route.js
+// app/api/payments/updatePaymentMethodAPI/route.js
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
@@ -15,7 +15,7 @@ export async function POST(req) {
     }
 
     try {
-        const { paymentMethodId } = await req.json();
+        const { cardNumber, expiryDate, cvv } = await req.json();
 
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
@@ -34,13 +34,27 @@ export async function POST(req) {
 
         const activeSubscription = user.subscriptions[0];
 
-        // Update the payment method in Stripe
-        await stripe.subscriptions.update(activeSubscription.stripeSubscriptionId, {
-            default_payment_method: paymentMethodId,
+        // Create a new payment method in Stripe
+        const paymentMethod = await stripe.paymentMethods.create({
+            type: 'card',
+            card: {
+                number: cardNumber,
+                exp_month: parseInt(expiryDate.split('/')[0]),
+                exp_year: parseInt(expiryDate.split('/')[1]),
+                
+                cvc: cvv,
+            },
         });
 
-        // Get the updated payment method details
-        const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+        // Attach the new payment method to the customer
+        await stripe.paymentMethods.attach(paymentMethod.id, {
+            customer: activeSubscription.stripeSubscriptionId.split('_')[0],
+        });
+
+        // Update the default payment method for the subscription
+        await stripe.subscriptions.update(activeSubscription.stripeSubscriptionId, {
+            default_payment_method: paymentMethod.id,
+        });
 
         // Update the subscription in the database
         await prisma.subscription.update({

@@ -1,4 +1,3 @@
-// app/api/subscription/cancel/route.js
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
@@ -32,15 +31,16 @@ export async function POST() {
 
         const activeSubscription = user.subscriptions[0];
 
-        // Cancel the subscription in Stripe
-        await stripe.subscriptions.cancel(activeSubscription.stripeSubscriptionId);
+        // Cancel the subscription in Stripe at the end of the billing period
+        await stripe.subscriptions.update(activeSubscription.stripeSubscriptionId, {
+            cancel_at_period_end: true
+        });
 
         // Update the subscription status in the database
         await prisma.subscription.update({
             where: { id: activeSubscription.id },
             data: {
                 status: 'CANCELED',
-                endDate: new Date(),
             },
         });
 

@@ -1,4 +1,3 @@
-// app/api/subscription/upgrade/route.js
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
@@ -37,29 +36,27 @@ export async function POST(req) {
         // Get the new price ID based on the new tier
         const newPriceId = getNewPriceId(newTier);
 
-        // Update the subscription in Stripe
-        const updatedStripeSubscription = await stripe.subscriptions.update(
-            activeSubscription.stripeSubscriptionId,
-            {
-                items: [
-                    {
-                        id: activeSubscription.stripeSubscriptionId,
-                        price: newPriceId,
-                    },
-                ],
-            }
-        );
-
-        // Update the subscription in the database
-        await prisma.subscription.update({
-            where: { id: activeSubscription.id },
-            data: {
-                tier: newTier,
-                priceId: newPriceId,
+        // Create a Stripe Checkout session for the upgrade
+        const checkoutSession = await stripe.checkout.sessions.create({
+            customer: user.stripeCustomerId,
+            mode: 'subscription',
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: newPriceId,
+                    quantity: 1,
+                },
+            ],
+            success_url: `${process.env.NEXT_PUBLIC_URL}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_URL}`,
+            subscription_data: {
+                metadata: {
+                    oldSubscriptionId: activeSubscription.stripeSubscriptionId,
+                },
             },
         });
 
-        return NextResponse.json({ message: 'Subscription upgraded successfully' });
+        return NextResponse.json({ checkoutUrl: checkoutSession.url });
     } catch (error) {
         console.error('Error upgrading subscription:', error);
         return NextResponse.json({ error: 'Failed to upgrade subscription' }, { status: 500 });
@@ -69,8 +66,8 @@ export async function POST(req) {
 function getNewPriceId(tier) {
     // Replace these with your actual Stripe price IDs
     const priceTiers = {
-        PLUS: 'price_plus_id',
-        PREMIUM: 'price_premium_id',
+        PLUS: `${process.env['PLUS_PRICE_ID']}`,
+        PREMIUM: `${process.env['PREMIUM_PRICE_ID']}`,
     };
     return priceTiers[tier];
 }

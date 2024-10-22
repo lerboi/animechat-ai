@@ -1,5 +1,4 @@
-//NOT UPDATED
-
+// app/api/subscriptions/getSubscriptionInfoAPI/route.js
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
@@ -17,16 +16,13 @@ export async function GET() {
             where: { id: session.user.id },
             include: {
                 subscriptions: {
-                    where: { status: 'ACTIVE' },
+                    where: { status: { in: ['ACTIVE', 'CANCELED', 'PAST_DUE', 'INACTIVE'] } },
                     orderBy: { createdAt: 'desc' },
                     take: 1,
                 },
-                payments: {
-                    orderBy: { createdAt: 'desc' },
-                    take: 5,
-                },
             },
         });
+
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
@@ -45,10 +41,7 @@ export async function GET() {
             billingAddress: activeSub.billingAddress,
         } : null;
 
-        return NextResponse.json({
-            billingInfo,
-            payments: user.payments,
-        });
+        return NextResponse.json({ billingInfo });
     } catch (error) {
         console.error('Error fetching billing info:', error);
         return NextResponse.json({ error: 'Failed to fetch billing info' }, { status: 500 });
