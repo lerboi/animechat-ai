@@ -9,26 +9,17 @@ import { RiImageCircleFill } from "react-icons/ri";
 import { PiStorefront, PiStorefrontFill } from "react-icons/pi";
 import Image from 'next/image';
 import { PiUserCircleLight, PiUserCircleDuotone } from "react-icons/pi";
-
+import { useNav } from "@/lib/NavContext";
 import LoginPopup from "./LoginPopup";
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 
-export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLinks }) {
+export default function Navbar() {
+    const router = useRouter();
+    const { isOpen, setIsOpen, navItem, setNavItem, navLinks, isMobile } = useNav();
     const { data: session, status } = useSession();
     const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
-    const [isMobile, setIsMobile] = useState(true);
     const [tokens, setTokens] = useState({ textTokens: 0, imageTokens: 0 });
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-
-        handleResize();
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     useEffect(() => {
         if (session) {
@@ -52,25 +43,46 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
         }
     }, [session]);
 
+    function handleNavigation(link) {
+        setNavItem(link);
+        if (link === "Home") {
+            router.push('/');
+        } else {
+            router.push(`/${link}`);
+        }
+    };
+
     const handleLogout = () => setShowLogoutConfirmation(true);
     const confirmLogout = () => {
         signOut();
         setShowLogoutConfirmation(false);
     };
 
-    const Tooltip = ({ content, children }) => (
-        <div className='relative group'>
+    const Tooltip = ({ content, children, isMobile, isOpen }) => {
+        const [isHovered, setIsHovered] = useState(false);
+      
+        const showTooltip = isHovered && !isMobile && isOpen;
+      
+        return (
+          <div 
+            className='relative'
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
             {children}
-            <span
+            {showTooltip && (
+              <span
                 className={`absolute left-14 top-1/2 -translate-y-1/2 bg-slate-200 text-black text-sm rounded-md px-2 py-1
-                    opacity-0 group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-50
-                    before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 
-                    before:border-8 before:border-transparent before:border-r-slate-200 ${(!isMobile && !isOpen)? 'block' : 'hidden' }`}
-            >
+                  opacity-100 visible transition-opacity duration-200 z-50
+                  before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 
+                  before:border-8 before:border-transparent before:border-r-slate-200`}
+              >
                 {content}
-            </span>
-        </div>
-    );
+              </span>
+            )}
+          </div>
+        );
+      };
 
     const renderIcon = (link) => {
         switch (link) {
@@ -147,7 +159,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                             navLinks.map((link) => (
                                 <Tooltip key={link} content={link}>
                                     <div
-                                        onClick={() => setNavItem(link)}
+                                        onClick={() => handleNavigation(link)}
                                         className={`text-slate-200 items-center gap-3 hover:cursor-pointer mb-6 flex p-2 rounded-xl 
                                             hover:bg-slate-400 hover:bg-opacity-30 hover:text-white 
                                             ${navItem === link ? "bg-slate-400 bg-opacity-30" : ""}
@@ -170,7 +182,7 @@ export default function Navbar({ isOpen, setIsOpen, navItem, setNavItem, navLink
                                 ${!isOpen && !isMobile ? "h-12 w-12 justify-center" : "h-auto w-auto"}
                                 ${isMobile && !isOpen ? "hidden" : ""}
                                 ${navItem === "Profile" ? "bg-slate-200 bg-opacity-20" : "" }`}
-                            onClick={() => setNavItem("Profile")}
+                            onClick={() => handleNavigation("Profile")}
                         >
                             {session.user.image ? (
                                 <Image

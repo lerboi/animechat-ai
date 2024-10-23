@@ -1,6 +1,9 @@
+"use client";
 import localFont from "next/font/local";
 import "./globals.css";
 import SessionWrapper from "@/lib/SessionWrapper";
+import { NavProvider } from "@/lib/NavContext";
+import Navbar from "@/components/Nav/Navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -13,23 +16,19 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata = {
-  title: "anione.ai",
-  description: "Talk to your favourite anime characters",
-};
-
 export default function RootLayout({ children }) {
   return (
     <SessionWrapper>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-pink-100/10 via-transparent to-transparent h-[70%] mx-auto">
-            {children}
-          </div>
-        </body>
-      </html>
+      <NavProvider>
+        <html lang="en">
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
+            <Navbar />
+            <div className="absolute inset-0 bg-gradient-to-b from-pink-100/10 via-transparent to-transparent h-[70%] mx-auto">
+              {children}
+            </div>
+          </body>
+        </html>
+      </NavProvider>
     </SessionWrapper>
   );
 }

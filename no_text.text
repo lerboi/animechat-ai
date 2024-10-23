@@ -6,53 +6,46 @@ Default: "1girl, cagliostro, granblue fantasy, violet eyes, standing, hand on ow
 
 TODO:
 - Add functionality where when picture icon pressed, only select chathistory from the messages above content
-- implement Subscription API routes into respective .jsx pages
 - edit webhook.js to change find.billing to find.Subscription
 - figure out good ai prompt to create all characters
 - Make pictures stay
 - Add Gallery feature
+- add isGuest to user  model
 
 v0 prompts:
 
 I am passing the above into an AI model to help me to write the code. Help me to streamline and improve my prompt such that it will make the AI produce better outcomes. Keep all the details that i wrote and do not remove any details.
 
+IMPORTANT:
+Keep ALL functrionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
+
 TASK
 
-{insert storePage.jsx}
+{insert ChatWindow.jsx}
 
-The above is my StorePage.jsx, where the user clicks on the subscription and is redirected to checkout
+Above is my ChatWindow.jsx
 
- {insert create-checkout-session}
+{insert useTokensAPI}
 
- Above is my create-checkout-session API for users to checkout on the stripe checkout page.
+Above is my useTokensAPI
 
- {insert /success page}
+{insert schema.prisma}
 
- Above is my page.jsxx for a success_url after a succesful transaction
+Above is my prisma schema for reference
 
- {insert prisma schema}
+Your Task:
+Token Check & Dialog Implementation:
+When the user has 0 Message Tokens and tries to send a message, a dialog box will appear with the message:
+"You have run out of tokens."
 
- Above is my prisma schema for reference
+Two buttons will be shown:
+"Buy more"
+Clicking this will redirect the user to the store page.
+"Cancel"
+Clicking this will close the dialog and cancel the action.
+The same behavior applies when the user has 0 Image Tokens and tries to upload an image.
 
-Success Page Logic:
-When a user successfully completes a payment and is redirected to the success page, run two functions:
-    - addPaymentInfo()
-    - addSubscriptionInfo()
-
-Both functions will connect to API routes:
-    - addPaymentInfo API → Route: /api/payments/{insert name}
-    - addSubscriptionInfo API → Route: /api/subscriptions/{insert name}
-
-Additionally, create the API routes required for both functions.
-
-API Route: addPaymentInfo
-- In this route, write the logic to store all the necessary payment information using the Payment model from my Prisma schema.
-- Ensure all relevant fields are properly populated based on the model.
-
-API Route: addSubscriptionInfo
-- In this route, write the logic to store all the required subscription details with reference to my Subscription model from the Prisma schema.
-- For the startDate and endDate:
-    - startDate should be the exact date the payment was made.
-    - endDate should be 1 month from the startDate (for example, if the start date is January 22, the end date will be February 22).
-
-I am using Nextjs14 with App router
+Requirements:
+The logic for checking tokens should integrate with useTokens() to ensure tokens are only deducted if available.
+The dialog should be reusable for both text and image token checks.
+On clicking "Buy more", the user should be redirected to /store.

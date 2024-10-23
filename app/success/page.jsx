@@ -18,7 +18,7 @@ export default function SuccessPage() {
     
     // Redirect to the payments page after a short delay
     const redirectTimer = setTimeout(() => {
-      router.push('/')
+      router.push('http://localhost:3000/')
     }, 2000)
 
     return () => clearTimeout(redirectTimer)
