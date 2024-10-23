@@ -57,7 +57,7 @@ export default function Navbar() {
         return () => {
             window.removeEventListener('tokenUpdate', handleTokenUpdate);
         };
-    }, [session]);
+    }, [session, tokens]);
 
     function handleNavigation(link) {
         setNavItem(link);

@@ -1,0 +1,43 @@
+model Character {
+  id           Int        @id @default(autoincrement())
+  name         String
+  description  String?    @default("")
+  tags         Tag[]      @relation("CharacterTags") // A character can have multiple tags
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  picture      String?
+  animename    String?
+  personaData   Persona?   @relation(fields: [personaId], references: [id])
+  personaId     Int?       @unique // Foreign key reference to Persona
+  userCharacters UserCharacter[]
+}
+
+model Persona {
+  id            Int       @id @default(autoincrement())
+  age           String?
+  gender        String?
+  nationality   String?
+  sexuality     String?
+  height        String?
+  species       String?
+  occupation    String?
+  affiliation   String?
+  mind          String?
+  personality   String?
+  appearance    String?
+  clothes       String?
+  attributes    String?
+  likes         String?
+  dislikes      String?
+  description   String?
+  scenario      String?
+  aiDescription String?
+  character     Character? @relation // Optional relation to UserCharacter
+}
+
+Character(name, description, animename, personaData(age, gender, nationality, sexuality, height, species, occupation, affiliation, mind, personality, appearance, clothes, attributes, likes, dislikes, description))
+
+Fill in only these fields and leave whatever fields i did not mention blank. 
+
+Example: 
+Character(Nami, A master navigator with a love for treasure, often acts as the voice of reason for her crew., one_piece, personaData(20s, Female, Unknown, Bisexual, 170cm, Human, Navigator, Straw Hat Pirates, 'Sharp strategist and tactician, Ambitious, intelligent, resourceful', 'Orange long hair, Large Breast Size', 'Blue Sleeveless Kimono fitted at the Waist.', 'Master navigator and thief', 'Master navigator and thief', 'Arrogance, unnecessary violence', 'Loyal friend with a passion for maps and treasure'))

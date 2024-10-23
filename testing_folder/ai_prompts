@@ -1,0 +1,147 @@
+Negative prompts
+blurry eyes, deformed eyes, asymmetrical eyes, extra eyes, fused eyes, discolored eyes, cross-eyed, lazy eye, low-resolution eyes, empty eyes, dull pupils, unnatural reflections, distorted face, missing iris, extra hands, extra fingers, deformed hands, incorrect anatomy, mismatched hand size, fused fingers, mutated limbs, twisted hand poses, cartoonish hands, glitchy anatomy, overexposed, pixelated fingers, unnatural gestures
+
+Example Prompt:
+Default: "1girl, cagliostro, granblue fantasy, violet eyes, standing, hand on own chin, looking at object, smile, closed mouth, table, beaker, glass tube, experiment apparatus, dark room, laboratory, upper body"
+
+TODO:
+- Add functionality where when picture icon pressed, only select chathistory from the messages above content
+- edit webhook.js to change find.billing to find.Subscription
+- figure out good ai prompt to create all characters
+- Make pictures stay
+- Add Gallery feature
+- add isGuest to user model
+- add a plus sign beside the text and image token to add tokens
+- add token run out functionality
+- when sm screen, add nav to top and search bar
+
+v0 prompts:
+
+I am passing the above into an AI model to help me to write the code. Help me to streamline and improve my prompt such that it will make the AI produce better outcomes. Keep all the details that i wrote and do not remove any details.
+
+IMPORTANT:
+Keep ALL functionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
+
+------------------------------------------------------------------------------------------------------------------------------------------
+TOKEN RAN OUT FUNCTIONALITY
+
+{insert ChatWindow.jsx}
+
+The above is my ChatWindow.jsx
+
+async function fetchTokens() {
+        if (!session) return;
+        
+        try {
+            const response = await fetch('/api/fetchTokensAPI', {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTokens(data);
+            }
+        } catch (error) {
+            console.error('Error fetching tokens:', error);
+        }
+    };
+
+The above is a fetchTokens() function that i have written for fetching the numebr of tokens a user has. tokens.textTokens are Text Tokens, and tokens.imageTokens are image tokens. Use this for fetching tokens.
+
+I need help editing my code to add the following functionality:
+
+1. Token Depletion Dialog Box:
+
+- When the user’s token amount reaches 0, and they try to send a message or request a picture:
+    - If Text Token is 0, display a dialog box saying, “You have run out of text tokens.”
+    - If Image Token is 0, display a dialog box saying, “You have run out of image tokens.”
+    - Do not run the handleSendMessage function if the user tries to send a text or request a image without tokens left.
+- Inside the dialog, include:
+    - A “Buy More” button that redirects the user to /Store when clicked.
+    - A “Cancel” button that closes the dialog.
+
+    Note: I want a useState for textTokenDepleted and imgTokenDepleted to be created and given a default value of false when the user runs out of either tokens. Once the user gets more tokens and their amount of tokens rise above 0 again, set the value of the states back to false.
+
+2. Tooltip for Tokens in ChatWindow:
+- In the User Input Section of ChatWindow.jsx:
+    - When the user clicks on the LiaCoinsSolid icon, a tooltip-style popup should appear on top of the icon.
+    - The tooltip must display the user’s current number of Text Tokens and Image Tokens.
+
+Make sure all necessary logic is properly integrated. Keep the UI intuitive and responsive to user interactions.
+ 
+IMPORTANT:
+Keep ALL functionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
+
+------------------------------------------------------------------------------------------------------------------------------------------
+IMPROVE USER PROFILE UI
+
+{insert Profile.jsx}
+
+The above is my Profile.jsx
+
+{insert ONLY User model from prisma}
+
+The above is my User model in my Prisma/Postgres db.
+
+I need help editing my code to enhance the User Profile with the following features:
+
+1. Display User Information:
+- The profile should display the Name, Email, Text Tokens, and Image Tokens.
+- Make the Name editable by adding a LuPencilLine React icon next to the name.
+
+2. Name Editing Functionality:
+- When the LuPencilLine icon is clicked:
+    - Replace the name text with a text input containing the current user’s name.
+    - Add a “Save” button to the right of the input field.
+        - On clicking the “Save” button:
+        - Call a function named updateName that routes to an API route (which you will create).
+        - In the API route, update the user’s name in the database with the new value.
+
+3. UI/UX Improvements:
+- Ensure the background of the profile section is transparent.
+- Implement a sleek, user-friendly design for the name-editing experience.
+- Ensure all elements (text input, button, and icons) are aligned nicely for a pleasing, responsive UI.
+
+IMPORTANT:
+Keep ALL functionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+ADD PLUS ICON BESIDE TOKENS IN NAVBAR + SOME OTHER NAVBAR UI CHANGES
+
+{insert Navbar.jsx}
+
+Above is my Navbar.jsx
+
+I need help enhancing the User Profile and Navbar Tooltip with the following features:
+
+1. Add Store Shortcut Icons:
+- For the Text Tokens and Image Tokens labels:
+    - Add a <FiPlusCircle /> icon to the top-right corner of each label.
+    - When the user clicks on the icon, redirect them to the /Store page.
+
+2. Profile Icon Update:
+- Replace the UserCircleDuotone icon with a circular avatar showing the user's profile image from the session.
+- If the user doesn't have an avatar, display a circular avatar containing the first letter of their email or username (whichever is available).
+
+3. Fix Navbar Tooltip Behavior:
+- Modify the tooltip for the navbar so that it:
+    - Displays only when the navbar is closed.
+    - Does not show on hover when the navbar is open.
+    
+Ensure that all changes are seamlessly integrated into the existing UI for a smooth and responsive user experience.
+
+------------------------------------------------------------------------------------------------------------------------------------------
+MAKE PICTURES STAY IN CHAT HISTORY
+
+{insert chatWindow.jsx}
+
+Above is my ChatWindow.jsx
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+ADD BLUR IN PICTURES IF NO MORE TOKENS
+
+Pass in imgTokenDepleted into getImageAPI route and if true, blur the image.

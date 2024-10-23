@@ -86,7 +86,7 @@ export default function ChatList({ onSelectChat, isMobile }) {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch("/api/deleteChatsAPI", {
+      const response = await fetch("/api/Chat/deleteChatsAPI", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

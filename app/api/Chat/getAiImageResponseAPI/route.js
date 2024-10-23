@@ -75,7 +75,7 @@ export async function POST(req) {
   
     // Format the final prompt with persona data and AI-deduced content
     const finalPrompt = {
-      prompt: `1girl, ${userCharacter.character.name}, ${userCharacter.character.animename || ''}, ${persona.appearance || ''}, ${deducedContent}`,
+      prompt: `1girl, ${userCharacter.character.name}, ${userCharacter.character.animename || ''}, ${persona.appearance || ''}, ${deducedContent}, uncensored, nsfw`,
     };
   
     console.log("Final Prompt: " + JSON.stringify(finalPrompt));

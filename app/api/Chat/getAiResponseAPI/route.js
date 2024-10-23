@@ -167,8 +167,8 @@ export async function POST(req) {
 
             <START>
             [DIALOGUE HISTORY]
-            User: Want to come in the bedroom with me?
-            ${character.name}: *grins, her lips curving mischievously* For the right price, I'll do anything :) *touches her chest, winking at you, her hips swaying slightly as she leans closer*`;
+            User: hey, what are you up to today?
+            ${character.name}: *looks up at you* im finee, just a bit bored i guess.. *smiles at you*`;
 
 
         messages.forEach((message, index) => {

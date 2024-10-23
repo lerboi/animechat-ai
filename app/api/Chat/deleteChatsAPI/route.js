@@ -20,7 +20,6 @@ export async function POST(req) {
         userId: session.user.id
       }
     });
-
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting chats:", error);

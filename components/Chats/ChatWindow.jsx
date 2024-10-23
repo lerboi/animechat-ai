@@ -5,9 +5,12 @@ import { useSession } from 'next-auth/react'
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 import { RiImageCircleFill } from "react-icons/ri";
+import { LiaCoinsSolid } from "react-icons/lia";
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, isMobile }) {
+  const router = useRouter()
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const messagesEndRef = useRef(null)
@@ -422,7 +425,7 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
       {/* User Input Section */}
       <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700 flex items-center">
         <button type="button" className="text-gray-400 hover:text-white mr-2">
-          <Paperclip size={20} />
+          <LiaCoinsSolid size={25} onClick={() => router.push('/Help')}/>
         </button>
         <input
           type="text"
