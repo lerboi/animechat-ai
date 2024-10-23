@@ -22,8 +22,6 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
-
-  const REPLICATE_API_KEY = process.env.REPLICATE_API_KEY
   
   useEffect(() => {
     async function fetchChatHistory() {

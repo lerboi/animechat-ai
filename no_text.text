@@ -11,41 +11,21 @@ TODO:
 - Make pictures stay
 - Add Gallery feature
 - add isGuest to user model
+- add a plus sign beside the text and image token to add tokens
+- add token run out functionality
 
 v0 prompts:
 
 I am passing the above into an AI model to help me to write the code. Help me to streamline and improve my prompt such that it will make the AI produce better outcomes. Keep all the details that i wrote and do not remove any details.
 
 IMPORTANT:
-Keep ALL functrionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
-
-TASK
+Keep ALL functionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
 
 {insert ChatWindow.jsx}
 
-Above is my ChatWindow.jsx
+The above is my ChatWindow.jsx
 
-{insert useTokensAPI}
-
-Above is my useTokensAPI
-
-{insert schema.prisma}
-
-Above is my prisma schema for reference
-
-Your Task:
-Token Check & Dialog Implementation:
-When the user has 0 Message Tokens and tries to send a message, a dialog box will appear with the message:
-"You have run out of tokens."
-
-Two buttons will be shown:
-"Buy more"
-Clicking this will redirect the user to the store page.
-"Cancel"
-Clicking this will close the dialog and cancel the action.
-The same behavior applies when the user has 0 Image Tokens and tries to upload an image.
-
-Requirements:
-The logic for checking tokens should integrate with useTokens() to ensure tokens are only deducted if available.
-The dialog should be reusable for both text and image token checks.
-On clicking "Buy more", the user should be redirected to /store.
+Your task is to edit my code to add the below functionality
+- When the user's token amount reaches 0, and they try to send a message or request a picture (depending on wether the Text Token is 0 or Image Token is 0), Display a Dialog box that says that the user has run out of text/image token
+(display the correct one), and below display a button saying "buy more" that redirects user to the /Store when clicked. Beside it, add a "Cancel" button that closes the dialog prompt.
+ 

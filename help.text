@@ -1,0 +1,12 @@
+How do the Tokens work?
+
+Text Tokens:
+Every Text/Message that you send will consume 1 Text Token.
+
+Image Tokens:
+Every Image that you send will consume 1 Image Token.
+
+Prompt help
+- use asteriks (*) during your chat with a character to signify an action
+example:
+    Im going to sleep now! *Jumps onto my bed and starts sleeping*
