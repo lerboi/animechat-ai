@@ -21,26 +21,42 @@ export default function Navbar() {
     const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
     const [tokens, setTokens] = useState({ textTokens: 0, imageTokens: 0 });
 
-    useEffect(() => {
-        if (session) {
-            async function fetchTokens(){
-                try {
-                    const response = await fetch('/api/fetchTokensAPI', {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        setTokens(data);
-                    }
-                } catch (error) {
-                    console.error('Error fetching tokens:', error);
+    async function fetchTokens() {
+        if (!session) return;
+        
+        try {
+            const response = await fetch('/api/fetchTokensAPI', {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
                 }
-            };
-            fetchTokens();
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTokens(data);
+            }
+        } catch (error) {
+            console.error('Error fetching tokens:', error);
         }
+    };
+
+    useEffect(() => {
+        fetchTokens();
+    }, [session]);
+
+    // Set up event listener for token updates
+    useEffect(() => {
+        if (!session) return;
+
+        const handleTokenUpdate = () => {
+            fetchTokens();
+        };
+
+        window.addEventListener('tokenUpdate', handleTokenUpdate);
+
+        return () => {
+            window.removeEventListener('tokenUpdate', handleTokenUpdate);
+        };
     }, [session]);
 
     function handleNavigation(link) {
@@ -82,7 +98,7 @@ export default function Navbar() {
             )}
           </div>
         );
-      };
+    };
 
     const renderIcon = (link) => {
         switch (link) {
@@ -104,6 +120,16 @@ export default function Navbar() {
                 return null;
         }
     };
+
+    const TokenDisplay = ({ icon: Icon, count, label }) => (
+        <div className="flex items-center justify-between rounded-lg mb-1">
+            <div className="flex items-center space-x-2">
+                <Icon className="text-slate-300" size={20} />
+                <span className="text-slate-300 text-sm font-medium">{label}</span>
+            </div>
+            <span className="text-slate-200 font-semibold">{count}</span>
+        </div>
+    );
 
     return (
         <>
@@ -134,21 +160,17 @@ export default function Navbar() {
                         <div className="mb-4">
                             <h1 className="text-2xl py-4 text-white font-bold">anione.ai</h1>
                             {session && (
-                                <div className="text-white mt-2 mb-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center">
-                                            <MdGeneratingTokens className="mr-2" />
-                                            <span>Text Tokens:</span>
-                                        </div>
-                                        <span>{tokens.textTokens}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center">
-                                            <RiImageCircleFill className="mr-2" />
-                                            <span>Image Tokens:</span>
-                                        </div>
-                                        <span>{tokens.imageTokens}</span>
-                                    </div>
+                                <div className="text-white mt-4 mb-4 space-y-2">
+                                    <TokenDisplay 
+                                        icon={MdGeneratingTokens} 
+                                        count={tokens.textTokens}
+                                        label="Text"
+                                    />
+                                    <TokenDisplay 
+                                        icon={RiImageCircleFill} 
+                                        count={tokens.imageTokens}
+                                        label="Image"
+                                    />
                                 </div>
                             )}
                             <hr className="border-t border-gray-600 my-4" />

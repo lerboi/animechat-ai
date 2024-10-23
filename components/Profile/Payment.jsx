@@ -7,12 +7,14 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import { LuPencilLine } from "react-icons/lu";
 
 export default function Payment() {
   const [payments, setPayments] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
 
   useEffect(() => {
     async function fetchPaymentInfo() {
@@ -60,6 +62,7 @@ export default function Payment() {
       if (response.ok) {
         // Refresh payment info after update
         fetchPaymentInfo();
+        setShowUpdateForm(false);
       } else {
         console.error('Failed to update payment method');
       }
@@ -81,13 +84,21 @@ export default function Payment() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8 text-gray-200">
-      <h1 className="text-3xl font-bold mb-6 text-gray-100">Payment Information</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-100">Payments</h1>
       
       {paymentMethod && (
-        <Card className="bg-slate-900 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-gray-100">Current Payment Method</CardTitle>
+        <Card className="bg-transparent border-gray-700">
+          <CardHeader className="relative">
+            <CardTitle className="text-gray-100">Payment Method</CardTitle>
             <CardDescription className="text-gray-400">Your active payment method details</CardDescription>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 hover:bg-slate-200 hover:bg-opacity-20 text-gray-400 hover:text-gray-100"
+              onClick={() => setShowUpdateForm(!showUpdateForm)}
+            >
+              <LuPencilLine className="h-4 w-4" />
+            </Button>
           </CardHeader>
           <CardContent className="space-y-2 text-gray-300">
             <div className="flex justify-between items-center">
@@ -111,31 +122,32 @@ export default function Payment() {
               </>
             )}
           </CardContent>
-          <CardFooter>
-            <form onSubmit={handleUpdatePaymentMethod} className="w-full space-y-4">
-              <h3 className="text-xl font-semibold text-gray-100">Update Payment Method</h3>
-              <div>
-                <Label htmlFor="cardNumber" className="text-gray-300">Card Number</Label>
-                <Input id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required className="mt-1 bg-gray-700 text-gray-200 border-gray-600" />
-              </div>
-              <div className="flex space-x-4">
-                <div className="flex-1">
-                  <Label htmlFor="expiryDate" className="text-gray-300">Expiry Date</Label>
-                  <Input id="expiryDate" name="expiryDate" placeholder="MM/YY" required className="mt-1 bg-gray-700 text-gray-200 border-gray-600" />
+          {showUpdateForm && (
+            <CardFooter>
+              <form onSubmit={handleUpdatePaymentMethod} className="w-full space-y-4">
+                <h3 className="text-xl font-semibold text-gray-100">Update Payment Method</h3>
+                <div>
+                  <Label htmlFor="cardNumber" className="text-gray-300">Card Number</Label>
+                  <Input id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required className="mt-1 bg-gray-700 text-gray-200 border-gray-600" />
                 </div>
-                <div className="flex-1">
-                  <Label htmlFor="cvv" className="text-gray-300">CVV</Label>
-                  
-                  <Input id="cvv" name="cvv" placeholder="123" required className="mt-1 bg-gray-700 text-gray-200 border-gray-600" />
+                <div className="flex space-x-4">
+                  <div className="flex-1">
+                    <Label htmlFor="expiryDate" className="text-gray-300">Expiry Date</Label>
+                    <Input id="expiryDate" name="expiryDate" placeholder="MM/YY" required className="mt-1 bg-gray-700 text-gray-200 border-gray-600" />
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="cvv" className="text-gray-300">CVV</Label>
+                    <Input id="cvv" name="cvv" placeholder="123" required className="mt-1 bg-gray-700 text-gray-200 border-gray-600" />
+                  </div>
                 </div>
-              </div>
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">Update Payment Method</Button>
-            </form>
-          </CardFooter>
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">Update Payment Method</Button>
+              </form>
+            </CardFooter>
+          )}
         </Card>
       )}
 
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-transparent border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-100">Recent Payments</CardTitle>
           <CardDescription className="text-gray-400">Your payment history</CardDescription>

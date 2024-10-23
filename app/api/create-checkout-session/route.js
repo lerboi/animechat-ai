@@ -24,7 +24,7 @@ export async function POST(req) {
                 },
             ],
             success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_URL}/store`,
+            cancel_url: `${process.env.NEXT_PUBLIC_URL}/Store`,
             client_reference_id: session.user.id,
         });
 

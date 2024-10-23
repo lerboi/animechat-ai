@@ -11,7 +11,7 @@ import { loadStripe } from '@stripe/stripe-js'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
-export default function Billing() {
+export default function Subscriptions() {
   const [billingInfo, setBillingInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
@@ -21,27 +21,28 @@ export default function Billing() {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [infoDialogContent, setInfoDialogContent] = useState({ title: '', description: '' });
 
-  useEffect(() => {
-    async function fetchBillingInfo() {
-      if (session) {
-        try {
-          const response = await fetch('/api/subscriptions/getSubscriptionInfoAPI', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setBillingInfo(data.billingInfo);
-          }
-        } catch (error) {
-          console.error('Error fetching billing info:', error);
-        } finally {
-          setIsLoading(false);
+  async function fetchBillingInfo() {
+    if (session) {
+      try {
+        const response = await fetch('/api/subscriptions/getSubscriptionInfoAPI', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setBillingInfo(data.billingInfo);
         }
+      } catch (error) {
+        console.error('Error fetching billing info:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
+  }
+
+  useEffect(() => {
     fetchBillingInfo();
   }, [session]);
 
@@ -77,7 +78,7 @@ export default function Billing() {
   }
 
   async function handleUpgradeSubscription() {
-    const nextTier = billingInfo.tier === 'FREE' ? 'PLUS' : 'PREMIUM';
+    const nextTier = billingInfo?.tier === 'FREE' ? 'PLUS' : 'PREMIUM';
     setDialogContent({
       title: 'Upgrade Subscription',
       description: `Are you sure you want to upgrade to the ${nextTier} tier?`,
@@ -183,71 +184,63 @@ export default function Billing() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <Spinner className="mb-4" />
-          <p className="text-lg font-semibold text-gray-200">Getting Billing Information...</p>
+          <p className="text-lg font-semibold text-gray-200">Getting Subscription Information...</p>
         </div>
       </div>
     );
   }
 
+  const subscriptionInfo = billingInfo || { tier: 'FREE', status: 'ACTIVE' };
+
   return (
     <div className="p-6 max-w-4xl mx-auto text-gray-200">
-      <h1 className="text-3xl font-bold mb-6 text-gray-100">Billing Information</h1>
-      {billingInfo ? (
-        <Card className="mb-6 bg-slate-90 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-gray-100">Current Subscription</CardTitle>
-            <CardDescription className="text-gray-400">Your current billing details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-gray-300">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Current Tier:</span>
-              <Badge variant="secondary" className="bg-gray-700 text-gray-200">{billingInfo.tier}</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Status:</span>
-              <Badge 
-                variant={billingInfo.status === 'active' ? 'success' : 'warning'} 
-                className={`${billingInfo.status === 'active' ? 'bg-green-700' : 'bg-yellow-700'} text-gray-200`}
-              >
-                {billingInfo.status}
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Start Date:</span>
-              <span>{new Date(billingInfo.startDate).toLocaleDateString()}</span>
-            </div>
-            {billingInfo.endDate && (
+      <h1 className="text-3xl font-bold mb-6 text-gray-100">Subscription Information</h1>
+      <Card className="mb-6 bg-slate-90 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-gray-100">Current Subscription</CardTitle>
+          <CardDescription className="text-gray-400">Your current billing details</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 text-gray-300">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold">Current Tier:</span>
+            <Badge variant="secondary" className="bg-gray-700 text-gray-200">{subscriptionInfo.tier}</Badge>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-semibold">Status:</span>
+            <Badge 
+              variant={subscriptionInfo.status === 'ACTIVE' ? 'success' : 'warning'} 
+              className={`${subscriptionInfo.status === 'ACTIVE' ? 'bg-green-700' : 'bg-yellow-700'} text-gray-200`}
+            >
+              {subscriptionInfo.status}
+            </Badge>
+          </div>
+          {billingInfo && (
+            <>
               <div className="flex justify-between items-center">
-                <span className="font-semibold">End Date:</span>
-                <span>{new Date(billingInfo.endDate).toLocaleDateString()}</span>
+                <span className="font-semibold">Start Date:</span>
+                <span>{new Date(billingInfo.startDate).toLocaleDateString()}</span>
               </div>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            {billingInfo.status === 'active' ? (
-              <>
-                <Button variant="destructive" onClick={handleCancelSubscription} className="bg-red-600 hover:bg-red-700 text-white">Cancel Subscription</Button>
-                <div className="space-x-2">
-                  {billingInfo.tier !== 'PREMIUM' && (
-                    <Button onClick={handleUpgradeSubscription} className="bg-blue-600 hover:bg-blue-700 text-white">Upgrade Subscription</Button>
-                  )}
-                  {billingInfo.tier !== 'FREE' && (
-                    <Button variant="outline" onClick={handleDowngradeSubscription} className="border-gray-600 text-gray-300 hover:bg-gray-700">Downgrade Subscription</Button>
-                  )}
+              {billingInfo.endDate && (
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">End Date:</span>
+                  <span>{new Date(billingInfo.endDate).toLocaleDateString()}</span>
                 </div>
-              </>
+              )}
+            </>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {billingInfo ? (
+            subscriptionInfo.status === 'ACTIVE' ? (
+              <Button variant="default" onClick={handleCancelSubscription} className="text-red-400 hover:text-red-500">Cancel Subscription</Button>
             ) : (
               <Button onClick={handleRenewSubscription} className="bg-green-600 hover:bg-green-700 text-white">Renew Subscription</Button>
-            )}
-          </CardFooter>
-        </Card>
-      ) : (
-        <Card className="bg-gray-800 border-gray-700">
-          <CardContent className="p-6">
-            <p className="text-center text-gray-300">No billing information available.</p>
-          </CardContent>
-        </Card>
-      )}
+            )
+          ) : (
+            <Button onClick={() => router.push('/Store')} className="bg-blue-600 hover:bg-blue-700 text-white">Upgrade</Button>
+          )}
+        </CardFooter>
+      </Card>
 
       {billingInfo && billingInfo.nextSubscription && (
         <Card className="bg-gray-800 border-gray-700">

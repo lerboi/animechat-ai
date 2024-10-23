@@ -62,7 +62,7 @@ export default function SuccessPage() {
     <div className="flex items-center justify-center h-screen">
       <div className="text-center text-slate-100">
         <h1 className="text-3xl font-bold mb-4">Payment Successful!</h1>
-        <p>Redirecting you to the payments page...</p>
+        <p>Redirecting you to the home page...</p>
       </div>
     </div>
   )

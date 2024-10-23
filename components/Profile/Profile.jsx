@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Payments from './Payment';
-import Billing from './Billing';
+import Subscriptions from './Subscriptions';
 
 const tabs = [
-  "Profile", "Billing", "Payments"
+  "Profile", "Subscriptions", "Payments"
 ]
 
 export default function Profile() {
@@ -60,7 +60,7 @@ export default function Profile() {
             </div>
           </div>
         )}
-        {activeTab === 'Billing' && <Billing />}
+        {activeTab === 'Subscriptions' && <Subscriptions />}
         {activeTab === 'Payments' && <Payments />}
       </div>
     </div>
