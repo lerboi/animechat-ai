@@ -1,14 +1,13 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
 import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft, MdGeneratingTokens} from "react-icons/md";
-import { AiOutlineHome, AiFillHome } from "react-icons/ai";
+import { AiOutlineHome, AiFillHome, AiOutlinePlus } from "react-icons/ai";
 import { HiOutlineChatBubbleLeftRight, HiChatBubbleLeftRight } from "react-icons/hi2";
 import { HiOutlineQuestionMarkCircle, HiQuestionMarkCircle } from "react-icons/hi2";
-import { FiAlignLeft } from "react-icons/fi";
+import { FiAlignLeft, FiPlusCircle } from "react-icons/fi";
 import { RiImageCircleFill } from "react-icons/ri";
 import { PiStorefront, PiStorefrontFill } from "react-icons/pi";
 import Image from 'next/image';
-import { PiUserCircleLight, PiUserCircleDuotone } from "react-icons/pi";
 import { useNav } from "@/lib/NavContext";
 import LoginPopup from "./LoginPopup";
 import { useState, useEffect } from "react";
@@ -44,7 +43,6 @@ export default function Navbar() {
         fetchTokens();
     }, [session]);
 
-    // Set up event listener for token updates
     useEffect(() => {
         if (!session) return;
 
@@ -74,10 +72,10 @@ export default function Navbar() {
         setShowLogoutConfirmation(false);
     };
 
-    const Tooltip = ({ content, children, isMobile, isOpen }) => {
+    const Tooltip = ({ content, children }) => {
         const [isHovered, setIsHovered] = useState(false);
       
-        const showTooltip = isHovered && !isMobile && isOpen;
+        const showTooltip = isHovered && !isMobile && !isOpen;
       
         return (
           <div 
@@ -127,9 +125,24 @@ export default function Navbar() {
                 <Icon className="text-slate-300" size={20} />
                 <span className="text-slate-300 text-sm font-medium">{label}</span>
             </div>
-            <span className="text-slate-200 font-semibold">{count}</span>
+            <div className="relative">
+                <span className="text-slate-200 font-semibold">{count}</span>
+                <AiOutlinePlus
+                    className="absolute -top-0 -right-4 text-slate-300 cursor-pointer hover:text-white"
+                    size={12}
+                    onClick={() => router.push('/Store')}
+                />
+            </div>
         </div>
     );
+
+    const getInitials = (name) => {
+        return name
+            .split(' ')
+            .map(word => word[0])
+            .join('')
+            .toUpperCase();
+    };
 
     return (
         <>
@@ -198,29 +211,31 @@ export default function Navbar() {
 
                 <div className="relative items-end z-[999]">
                     {session ? (
-                        <div
-                            className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-auto mb-4 flex p-2 rounded-xl 
-                                hover:bg-slate-400 hover:bg-opacity-30 hover:text-white
-                                ${!isOpen && !isMobile ? "h-12 w-12 justify-center" : "h-auto w-auto"}
-                                ${isMobile && !isOpen ? "hidden" : ""}
-                                ${navItem === "Profile" ? "bg-slate-200 bg-opacity-20" : "" }`}
-                            onClick={() => handleNavigation("Profile")}
-                        >
-                            {session.user.image ? (
-                                <Image
-                                    src={session.user.image}
-                                    alt="Profile"
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
-                                />
-                            ) : (
-                                <div>
-                                    {(navItem === "Profile") ? <PiUserCircleDuotone size={32}/> : <PiUserCircleLight size={32} /> }
-                                </div>
-                            )}
-                            {(isOpen || isMobile) && <span className="ml-3">Profile</span>}
-                        </div>
+                        <Tooltip content="Profile">
+                            <div
+                                className={`text-slate-200 items-center gap-3 hover:cursor-pointer mt-auto mb-4 flex p-2 rounded-xl 
+                                    hover:bg-slate-400 hover:bg-opacity-30 hover:text-white
+                                    ${!isOpen && !isMobile ? "h-12 w-12 justify-center" : "h-auto w-auto"}
+                                    ${isMobile && !isOpen ? "hidden" : ""}
+                                    ${navItem === "Profile" ? "bg-slate-200 bg-opacity-20" : "" }`}
+                                onClick={() => handleNavigation("Profile")}
+                            >
+                                {session.user.image ? (
+                                    <Image
+                                        src={session.user.image}
+                                        alt="Profile"
+                                        width={32}
+                                        height={32}
+                                        className="rounded-full"
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                                        {getInitials(session.user.name || session.user.email)}
+                                    </div>
+                                )}
+                                {(isOpen || isMobile) && <span className="ml-3">Profile</span>}
+                            </div>
+                        </Tooltip>
                     ) : (
                         <LoginPopup isOpen={isOpen} isMobile={isMobile} />
                     )}

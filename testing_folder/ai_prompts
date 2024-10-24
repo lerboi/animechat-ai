@@ -11,7 +11,6 @@ TODO:
 - Make pictures stay
 - Add Gallery feature
 - add isGuest to user model
-- add a plus sign beside the text and image token to add tokens
 - add token run out functionality
 - when sm screen, add nav to top and search bar
 
@@ -75,70 +74,42 @@ IMPORTANT:
 Keep ALL functionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
 
 ------------------------------------------------------------------------------------------------------------------------------------------
-IMPROVE USER PROFILE UI
-
-{insert Profile.jsx}
-
-The above is my Profile.jsx
-
-{insert ONLY User model from prisma}
-
-The above is my User model in my Prisma/Postgres db.
-
-I need help editing my code to enhance the User Profile with the following features:
-
-1. Display User Information:
-- The profile should display the Name, Email, Text Tokens, and Image Tokens.
-- Make the Name editable by adding a LuPencilLine React icon next to the name.
-
-2. Name Editing Functionality:
-- When the LuPencilLine icon is clicked:
-    - Replace the name text with a text input containing the current user’s name.
-    - Add a “Save” button to the right of the input field.
-        - On clicking the “Save” button:
-        - Call a function named updateName that routes to an API route (which you will create).
-        - In the API route, update the user’s name in the database with the new value.
-
-3. UI/UX Improvements:
-- Ensure the background of the profile section is transparent.
-- Implement a sleek, user-friendly design for the name-editing experience.
-- Ensure all elements (text input, button, and icons) are aligned nicely for a pleasing, responsive UI.
-
-IMPORTANT:
-Keep ALL functionalities and functions in ALL pages/components. DO NOT change any functionality or remove any functionality. I am using Javascript only with Nextjs14 app router.
-
-
-------------------------------------------------------------------------------------------------------------------------------------------
-ADD PLUS ICON BESIDE TOKENS IN NAVBAR + SOME OTHER NAVBAR UI CHANGES
-
-{insert Navbar.jsx}
-
-Above is my Navbar.jsx
-
-I need help enhancing the User Profile and Navbar Tooltip with the following features:
-
-1. Add Store Shortcut Icons:
-- For the Text Tokens and Image Tokens labels:
-    - Add a <FiPlusCircle /> icon to the top-right corner of each label.
-    - When the user clicks on the icon, redirect them to the /Store page.
-
-2. Profile Icon Update:
-- Replace the UserCircleDuotone icon with a circular avatar showing the user's profile image from the session.
-- If the user doesn't have an avatar, display a circular avatar containing the first letter of their email or username (whichever is available).
-
-3. Fix Navbar Tooltip Behavior:
-- Modify the tooltip for the navbar so that it:
-    - Displays only when the navbar is closed.
-    - Does not show on hover when the navbar is open.
-    
-Ensure that all changes are seamlessly integrated into the existing UI for a smooth and responsive user experience.
-
-------------------------------------------------------------------------------------------------------------------------------------------
 MAKE PICTURES STAY IN CHAT HISTORY
 
 {insert chatWindow.jsx}
 
 Above is my ChatWindow.jsx
+
+{insert addChatHistoryAPI route}
+
+Above is my addChatHistoryAPI route function.
+
+{insert prisma.schema}
+
+Above is my Prisma schema for my DB
+
+Currently, in my ChatWindow.jsx, when a user requests an image to be generated, the getImageResponse function is called, and the returned image is added directly to the message box. However, this image is not being added to the ChatHistory through the addChatHistory function. I want to modify the system to achieve the following:
+
+Required Functionality:
+1. Update ChatHistory in the userCharacter Table:
+- When an image is returned and displayed in the message box, the image URL must also be added to the ChatHistory field of the corresponding userCharacter record (stored via Prisma).
+- Use Prisma to find the exact chat message where the user clicked the RiImageCircle icon to request the image (it should be !isUser).
+- Once the message is identified, edit the specific message within the ChatHistory field under the correct userCharacter to include the generated image's URL.
+
+2. Client-Side Differentiation of Chat Types:
+- When retrieving ChatHistory on the client side in the fetchChatHistory function, differentiate between text messages and image URLs.
+- If the message contains an image URL, display the image within the same message element, in the same way it appears when the user initially clicks the RiImageCircleFill icon to generate it.
+
+3. Extend addChatHistory Functionality:
+- Ensure that the addChatHistory function runs every time a valid image is generated, and not just when a user or character sends a regular message.
+- This ensures that the generated image is added to the ChatHistory immediately, so users can view it whenever they revisit the chat.
+
+Expected Outcome by implementing these changes:
+1. Generated images will be persistently stored in ChatHistory for each userCharacter in the database.
+2. When users return to the chat, the images will appear in the correct place within the conversation.
+3. The ChatWindow.jsx UI will properly render images by checking if a message contains a URL and displaying it accordingly.
+
+With these changes, the system will seamlessly integrate generated images into the chat experience, ensuring consistency between current messages and historical data. Note that I am using Javascript only with NextJS14 app router.
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------

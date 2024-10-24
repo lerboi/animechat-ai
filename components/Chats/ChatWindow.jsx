@@ -138,40 +138,6 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
     }
   }
 
-  async function getAiResponse(messages){
-    if (!session || !session.user) {
-      console.error("User not authenticated");
-      return null;
-    }
-
-    try {
-      const response = await fetch("/api/Chat/getAiResponseAPI", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          messages: messages,
-          characterId: selectedChat.characterId,
-          userId: session.user.id
-        })
-      })
-      if (response.ok){
-        const reply = await response.json()
-        console.log("AI response: " + reply.results[0].text)
-        return reply.results[0].text
-      } 
-      else {
-        const reply = await response.json()
-        console.log("AI response not successful, Error: \n", reply.error)
-        return null
-      }
-    } catch (error) {
-      console.error("Error getting AI response:", error)
-      return null
-    }
-  }
-
   async function resetChat(){
     try {
       const response = await fetch("/api/Chat/resetChatAPI", {
@@ -228,6 +194,40 @@ export default function ChatWindow({ selectedChat, onMessageSent, onBackClick, i
     });
   
     return <>{formattedContent}</>;
+  }
+
+  async function getAiResponse(messages){
+    if (!session || !session.user) {
+      console.error("User not authenticated");
+      return null;
+    }
+
+    try {
+      const response = await fetch("/api/Chat/getAiResponseAPI", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages: messages,
+          characterId: selectedChat.characterId,
+          userId: session.user.id
+        })
+      })
+      if (response.ok){
+        const reply = await response.json()
+        console.log("AI response: " + reply.results[0].text)
+        return reply.results[0].text
+      } 
+      else {
+        const reply = await response.json()
+        console.log("AI response not successful, Error: \n", reply.error)
+        return null
+      }
+    } catch (error) {
+      console.error("Error getting AI response:", error)
+      return null
+    }
   }
 
   async function getImageResponse(messageId) {
